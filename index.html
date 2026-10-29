@@ -18,11 +18,27 @@
         
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', monospace;
-            background: linear-gradient(135deg, #0a0e1a 0%, #1a1f2e 100%);
+            background: linear-gradient(135deg, #0a0e1a 0%, #1a1f2e 50%, #0f1419 100%);
             color: #e0e0e0;
             min-height: 100vh;
             padding: 10px;
             padding-bottom: 120px;
+        }
+        
+        /* АНИМИРОВАННЫЙ ФОН */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(0, 255, 136, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 71, 87, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 50% 80%, rgba(0, 208, 255, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
         }
         
         .watermark {
@@ -35,28 +51,48 @@
             pointer-events: none;
         }
         
-        .header {
-            background: linear-gradient(135deg, #1a2332 0%, #0f1419 100%);
-            border: 2px solid #00ff88;
-            padding: 15px;
-            border-radius: 12px;
-            margin-bottom: 15px;
-            box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
-        }
-        
+        /* ЛОГОТИП */
         .logo-container {
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            margin-bottom: 10px;
+            gap: 15px;
+            margin-bottom: 15px;
+            padding: 15px;
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.1), rgba(0, 208, 255, 0.1));
+            border: 2px solid #00ff88;
+            border-radius: 15px;
+            box-shadow: 0 0 30px rgba(0, 255, 136, 0.3);
         }
         
-        .logo {
-            font-size: 22px;
+        .logo-svg {
+            width: 70px;
+            height: 70px;
+            flex-shrink: 0;
+            animation: logoPulse 3s ease-in-out infinite;
+        }
+        
+        @keyframes logoPulse {
+            0%, 100% { transform: scale(1); filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.5)); }
+            50% { transform: scale(1.05); filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.8)); }
+        }
+        
+        .logo-text {
+            flex: 1;
+        }
+        
+        .logo-title {
+            font-size: 20px;
             font-weight: 700;
-            background: linear-gradient(135deg, #00ff88 0%, #00d084 100%);
+            background: linear-gradient(135deg, #ffd700, #ff8c00, #ffd700);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            margin-bottom: 5px;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+        }
+        
+        .logo-subtitle {
+            font-size: 11px;
+            color: #6b7280;
         }
         
         .version-badge {
@@ -72,6 +108,17 @@
         @keyframes pulse {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.7; }
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1a2332 0%, #0f1419 100%);
+            border: 2px solid #00ff88;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
+            position: relative;
+            z-index: 1;
         }
         
         .creator-info {
@@ -113,6 +160,86 @@
             margin-bottom: 10px;
             font-size: 11px;
             text-align: center;
+        }
+        
+        /* БЛОК ДОНАТОВ */
+        .donate-section {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 140, 0, 0.1));
+            border: 2px solid #ffd700;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
+        }
+        
+        .donate-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #ffd700;
+            margin-bottom: 10px;
+        }
+        
+        .donate-subtitle {
+            font-size: 12px;
+            color: #6b7280;
+            margin-bottom: 15px;
+        }
+        
+        .donate-card {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid #ffd700;
+            border-radius: 10px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .donate-card:hover {
+            background: rgba(255, 215, 0, 0.1);
+            transform: scale(1.02);
+        }
+        
+        .donate-card:active {
+            transform: scale(0.98);
+        }
+        
+        .card-label {
+            font-size: 10px;
+            color: #6b7280;
+            margin-bottom: 5px;
+        }
+        
+        .card-number {
+            font-size: 18px;
+            font-weight: 700;
+            color: #ffd700;
+            letter-spacing: 2px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .card-copy-hint {
+            font-size: 10px;
+            color: #00ff88;
+            margin-top: 8px;
+        }
+        
+        .donate-copy-success {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 255, 136, 0.95);
+            color: #000;
+            padding: 20px 30px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            z-index: 10000;
+            box-shadow: 0 0 30px rgba(0, 255, 136, 0.5);
         }
         
         .priority-indicator {
@@ -263,6 +390,8 @@
             border: 1px solid #1e2a3a;
             border-radius: 12px;
             overflow: hidden;
+            position: relative;
+            z-index: 1;
         }
         
         .coin-item {
@@ -374,8 +503,6 @@
         .funding-negative { background: rgba(0, 255, 136, 0.2); color: #00ff88; }
         .cvd-positive { background: rgba(0, 255, 136, 0.2); color: #00ff88; }
         .cvd-negative { background: rgba(255, 71, 87, 0.2); color: #ff4757; }
-        .oi-up { background: rgba(0, 255, 136, 0.2); color: #00ff88; }
-        .oi-down { background: rgba(255, 71, 87, 0.2); color: #ff4757; }
         
         .chart-container {
             background: #1a2332;
@@ -384,6 +511,8 @@
             padding: 15px;
             margin-top: 15px;
             height: 450px;
+            position: relative;
+            z-index: 1;
         }
         
         .advanced-indicators {
@@ -446,6 +575,8 @@
             margin-top: 15px;
             text-align: center;
             font-size: 11px;
+            position: relative;
+            z-index: 1;
         }
         
         .footer-creator {
@@ -496,18 +627,99 @@
             color: #00ff88;
             border: 1px solid #00ff88;
         }
+        
+        /* УВЕДОМЛЕНИЕ О КОПИРОВАНИИ */
+        .copy-notification {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #00ff88, #00d084);
+            color: #000;
+            padding: 20px 30px;
+            border-radius: 15px;
+            font-size: 16px;
+            font-weight: 700;
+            z-index: 10000;
+            box-shadow: 0 0 40px rgba(0, 255, 136, 0.6);
+            text-align: center;
+        }
+        
+        .copy-notification.show {
+            display: block;
+            animation: fadeInOut 2s ease-in-out;
+        }
+        
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+            20% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            80% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+        }
     </style>
 </head>
 <body oncontextmenu="return false;" onselectstart="return false;" ondragstart="return false;">
     
-    <div class="watermark">© 2026 Анатолий Григорьевич Строколенко | <a href="https://t.me/HlopokSU" style="color: inherit;">@HlopokSU</a></div>
+    <div class="watermark">© 2026 Анатолий Григорьевич Строколенко | @HlopokSU</div>
     
-    <div class="header">
-        <div class="logo-container">
-            <div class="logo"> WORLD FUTURE ULTIMATE</div>
-            <div class="version-badge">PRO v3.0</div>
+    <!-- УВЕДОМЛЕНИЕ О КОПИРОВАНИИ -->
+    <div class="copy-notification" id="copyNotification">
+        ✅ Номер карты скопирован!<br>
+        <span style="font-size: 12px;">Откройте банковское приложение для перевода</span>
+    </div>
+    
+    <!-- ЛОГОТИП -->
+    <div class="logo-container">
+        <svg class="logo-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <!-- Внешний круг чемодана -->
+            <circle cx="50" cy="50" r="48" fill="none" stroke="#ffd700" stroke-width="2" opacity="0.3"/>
+            <circle cx="50" cy="50" r="45" fill="none" stroke="#ffd700" stroke-width="1" opacity="0.5"/>
+            
+            <!-- Фон монеты -->
+            <circle cx="50" cy="50" r="42" fill="url(#coinGradient)"/>
+            
+            <!-- Радиальные линии -->
+            <g opacity="0.3">
+                <line x1="50" y1="10" x2="50" y2="20" stroke="#ffd700" stroke-width="1"/>
+                <line x1="50" y1="80" x2="50" y2="90" stroke="#ffd700" stroke-width="1"/>
+                <line x1="10" y1="50" x2="20" y2="50" stroke="#ffd700" stroke-width="1"/>
+                <line x1="80" y1="50" x2="90" y2="50" stroke="#ffd700" stroke-width="1"/>
+                <line x1="22" y1="22" x2="29" y2="29" stroke="#ffd700" stroke-width="1"/>
+                <line x1="71" y1="71" x2="78" y2="78" stroke="#ffd700" stroke-width="1"/>
+                <line x1="22" y1="78" x2="29" y2="71" stroke="#ffd700" stroke-width="1"/>
+                <line x1="71" y1="29" x2="78" y2="22" stroke="#ffd700" stroke-width="1"/>
+            </g>
+            
+            <!-- Bitcoin символ B -->
+            <text x="50" y="62" font-family="Arial, sans-serif" font-size="40" font-weight="bold" 
+                  fill="url(#bGradient)" text-anchor="middle" stroke="#ffd700" stroke-width="0.5">₿</text>
+            
+            <!-- Блик -->
+            <ellipse cx="35" cy="35" rx="15" ry="10" fill="white" opacity="0.1" transform="rotate(-30 35 35)"/>
+            
+            <defs>
+                <radialGradient id="coinGradient" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" style="stop-color:#2a2a2a;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#1a1a1a;stop-opacity:1" />
+                </radialGradient>
+                <linearGradient id="bGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" style="stop-color:#ffd700;stop-opacity:1" />
+                    <stop offset="50%" style="stop-color:#ff8c00;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#ffd700;stop-opacity:1" />
+                </linearGradient>
+            </defs>
+        </svg>
+        
+        <div class="logo-text">
+            <div class="logo-title">WORLD FUTURE ULTIMATE</div>
+            <div class="logo-subtitle">Профессиональный сканер фьючерсов</div>
         </div>
         
+        <div class="version-badge">PRO v3.0</div>
+    </div>
+    
+    <div class="header">
         <div class="creator-info">
             <div class="creator-name">👤 Создатель и разработчик:</div>
             <div style="margin-bottom: 5px;">Анатолий Григорьевич Строколенко</div>
@@ -521,7 +733,7 @@
         </div>
 
         <div class="priority-indicator">
-            <div class="priority-label">🎯 ПРИОРИТЕТ СКАНИРОВАНИЯ:</div>
+            <div class="priority-label"> ПРИОРИТЕТ СКАНИРОВАНИЯ:</div>
             <div class="priority-value">HIGH SPEED ⚡</div>
         </div>
 
@@ -531,7 +743,7 @@
                 <div class="stat-value positive" id="buySignals">0</div>
             </div>
             <div class="stat-card" onclick="setFilter('short')" id="statShort">
-                <div class="stat-label">📉 SHORT СИГНАЛЫ</div>
+                <div class="stat-label"> SHORT СИГНАЛЫ</div>
                 <div class="stat-value negative" id="sellSignals">0</div>
             </div>
             <div class="stat-card" onclick="setFilter('fundingPositive')" id="statFundingPos">
@@ -562,16 +774,27 @@
 
         <div class="controls">
             <button class="btn active" onclick="setFilter('all')" id="btnAll">Все</button>
-            <button class="btn" onclick="setFilter('long')" id="btnLong">📈 Long</button>
-            <button class="btn" onclick="setFilter('short')" id="btnShort"> Short</button>
+            <button class="btn" onclick="setFilter('long')" id="btnLong"> Long</button>
+            <button class="btn" onclick="setFilter('short')" id="btnShort">📉 Short</button>
             <button class="btn" onclick="refreshData()"> Scan</button>
+        </div>
+    </div>
+
+    <!-- БЛОК ДОНАТОВ -->
+    <div class="donate-section">
+        <div class="donate-title">️ Поддержать разработчика на кофе</div>
+        <div class="donate-subtitle">Нажмите на номер карты чтобы скопировать</div>
+        <div class="donate-card" onclick="copyCardNumber()">
+            <div class="card-label">MASTERCARD</div>
+            <div class="card-number" id="cardNumber">5599 0021 3864 4176</div>
+            <div class="card-copy-hint">👆 Нажмите чтобы скопировать номер карты</div>
         </div>
     </div>
 
     <div id="messageContainer"></div>
 
     <div class="coin-list" id="coinList">
-        <div class="loading"> Сканирование мирового рынка фьючерсов...</div>
+        <div class="loading">⚡ Сканирование мирового рынка фьючерсов...</div>
     </div>
 
     <div class="chart-container" id="chartContainer" style="display:none;">
@@ -629,6 +852,50 @@
             }
         });
 
+        // КОПИРОВАНИЕ НОМЕРА КАРТЫ
+        function copyCardNumber() {
+            const cardNumber = '5599002138644176';
+            
+            // Копируем в буфер обмена
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(cardNumber).then(() => {
+                    showCopyNotification();
+                }).catch(() => {
+                    fallbackCopy(cardNumber);
+                });
+            } else {
+                fallbackCopy(cardNumber);
+            }
+        }
+        
+        function fallbackCopy(text) {
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            textArea.style.position = 'fixed';
+            textArea.style.left = '-9999px';
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            
+            try {
+                document.execCommand('copy');
+                showCopyNotification();
+            } catch (err) {
+                alert('Номер карты: ' + text);
+            }
+            
+            document.body.removeChild(textArea);
+        }
+        
+        function showCopyNotification() {
+            const notification = document.getElementById('copyNotification');
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 2000);
+        }
+
         let allCoins = [];
         let filteredCoins = [];
         let currentFilter = 'all';
@@ -653,11 +920,9 @@
         function setFilter(filter) {
             currentFilter = filter;
             
-            // Убираем active со всех кнопок
             document.querySelectorAll('.btn').forEach(btn => btn.classList.remove('active'));
             document.querySelectorAll('.stat-card').forEach(card => card.classList.remove('active'));
             
-            // Добавляем active на нужную кнопку
             if (filter === 'all') {
                 document.getElementById('btnAll').classList.add('active');
             } else if (filter === 'long') {
@@ -680,7 +945,7 @@
             const now = Date.now();
             if (now - lastScanTime < SCAN_INTERVAL) {
                 const wait = Math.ceil((SCAN_INTERVAL - (now - lastScanTime)) / 1000);
-                showMessage('⚡ Подождите ' + wait + ' сек', 'error');
+                showMessage(' Подождите ' + wait + ' сек', 'error');
                 return;
             }
             lastScanTime = now;
@@ -880,11 +1145,9 @@
                     filteredCoins = allCoins.filter(c => c.signal === 'SHORT' || c.signal === 'STRONG SHORT');
                     break;
                 case 'fundingPositive':
-                    // Показываем монеты с положительным funding (лонги платят - потенциал SHORT)
                     filteredCoins = allCoins.filter(c => c.funding > 0.005);
                     break;
                 case 'fundingNegative':
-                    // Показываем монеты с отрицательным funding (шорты платят - потенциал LONG)
                     filteredCoins = allCoins.filter(c => c.funding < -0.005);
                     break;
                 default: 
