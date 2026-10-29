@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="author" content="Анатолий Григорьевич Строколенко">
-    <title> WORLD FUTURE ULTIMATE SCANNER</title>
+    <title>🌍 WORLD FUTURE ULTIMATE SCANNER</title>
     <script src="https://cdn.jsdelivr.net/npm/lightweight-charts@4.1.0/dist/lightweight-charts.standalone.production.js"></script>
     <style>
         * {
@@ -18,11 +18,27 @@
         
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', monospace;
-            background: linear-gradient(135deg, #0a0e1a 0%, #1a1f2e 100%);
+            background: linear-gradient(135deg, #0a0e1a 0%, #1a1f2e 50%, #0f1419 100%);
             color: #e0e0e0;
             min-height: 100vh;
             padding: 10px;
-            padding-bottom: 150px;
+            padding-bottom: 120px;
+        }
+        
+        /* АНИМИРОВАННЫЙ ФОН */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(0, 255, 136, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 71, 87, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 50% 80%, rgba(0, 208, 255, 0.05) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
         }
         
         .watermark {
@@ -35,107 +51,81 @@
             pointer-events: none;
         }
         
-        /* ============================================
-           ЛОГОТИП И ЗАГОЛОВОК
-           ============================================ */
-        .logo-section {
-            text-align: center;
-            padding: 20px;
-            background: linear-gradient(135deg, rgba(0, 255, 136, 0.1) 0%, rgba(0, 208, 132, 0.05) 100%);
-            border: 2px solid #00ff88;
-            border-radius: 16px;
+        /* ЛОГОТИП */
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
             margin-bottom: 15px;
+            padding: 15px;
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.1), rgba(0, 208, 255, 0.1));
+            border: 2px solid #00ff88;
+            border-radius: 15px;
             box-shadow: 0 0 30px rgba(0, 255, 136, 0.3);
-            position: relative;
-            overflow: hidden;
         }
         
-        .logo-section::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: linear-gradient(45deg, transparent, rgba(0, 255, 136, 0.1), transparent);
-            animation: shine 3s infinite;
+        .logo-svg {
+            width: 70px;
+            height: 70px;
+            flex-shrink: 0;
+            animation: logoPulse 3s ease-in-out infinite;
         }
         
-        @keyframes shine {
-            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
-            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        @keyframes logoPulse {
+            0%, 100% { transform: scale(1); filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.5)); }
+            50% { transform: scale(1.05); filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.8)); }
         }
         
-        .logo-main {
-            font-size: 60px;
-            margin-bottom: 10px;
-            animation: float 3s ease-in-out infinite;
-            position: relative;
-            z-index: 1;
-        }
-        
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
+        .logo-text {
+            flex: 1;
         }
         
         .logo-title {
-            font-size: 28px;
+            font-size: 20px;
             font-weight: 700;
-            background: linear-gradient(135deg, #00ff88 0%, #00d084 50%, #00ff88 100%);
+            background: linear-gradient(135deg, #ffd700, #ff8c00, #ffd700);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            background-size: 200% auto;
-            animation: gradient 3s linear infinite;
             margin-bottom: 5px;
-            position: relative;
-            z-index: 1;
-        }
-        
-        @keyframes gradient {
-            0% { background-position: 0% center; }
-            100% { background-position: 200% center; }
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
         }
         
         .logo-subtitle {
-            font-size: 14px;
+            font-size: 11px;
             color: #6b7280;
-            position: relative;
-            z-index: 1;
         }
         
         .version-badge {
-            display: inline-block;
             background: linear-gradient(135deg, #ff6b6b, #ff4757);
             color: #fff;
-            padding: 6px 12px;
-            border-radius: 8px;
-            font-size: 11px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 10px;
             font-weight: 700;
-            margin-top: 10px;
             animation: pulse 2s infinite;
-            position: relative;
-            z-index: 1;
         }
         
         @keyframes pulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.8; transform: scale(0.95); }
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
         }
         
         .header {
             background: linear-gradient(135deg, #1a2332 0%, #0f1419 100%);
-            border: 2px solid #1e2a3a;
+            border: 2px solid #00ff88;
             padding: 15px;
             border-radius: 12px;
             margin-bottom: 15px;
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
+            position: relative;
+            z-index: 1;
         }
         
         .creator-info {
-            background: linear-gradient(135deg, rgba(0, 255, 136, 0.15) 0%, rgba(0, 208, 132, 0.05) 100%);
+            background: rgba(0, 255, 136, 0.1);
             border: 1px solid #00ff88;
-            padding: 12px;
-            border-radius: 10px;
+            padding: 10px;
+            border-radius: 8px;
             margin-bottom: 10px;
             font-size: 12px;
         }
@@ -144,9 +134,6 @@
             color: #00ff88;
             font-weight: 700;
             margin-bottom: 5px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
         }
         
         .creator-contact {
@@ -158,12 +145,10 @@
             color: #00d0ff;
             text-decoration: none;
             border-bottom: 1px dotted #00d0ff;
-            transition: all 0.3s;
         }
         
         .creator-contact a:hover {
             color: #00ff88;
-            border-bottom-color: #00ff88;
         }
         
         .disclaimer {
@@ -177,12 +162,92 @@
             text-align: center;
         }
         
+        /* БЛОК ДОНАТОВ */
+        .donate-section {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 140, 0, 0.1));
+            border: 2px solid #ffd700;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
+        }
+        
+        .donate-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #ffd700;
+            margin-bottom: 10px;
+        }
+        
+        .donate-subtitle {
+            font-size: 12px;
+            color: #6b7280;
+            margin-bottom: 15px;
+        }
+        
+        .donate-card {
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid #ffd700;
+            border-radius: 10px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .donate-card:hover {
+            background: rgba(255, 215, 0, 0.1);
+            transform: scale(1.02);
+        }
+        
+        .donate-card:active {
+            transform: scale(0.98);
+        }
+        
+        .card-label {
+            font-size: 10px;
+            color: #6b7280;
+            margin-bottom: 5px;
+        }
+        
+        .card-number {
+            font-size: 18px;
+            font-weight: 700;
+            color: #ffd700;
+            letter-spacing: 2px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .card-copy-hint {
+            font-size: 10px;
+            color: #00ff88;
+            margin-top: 8px;
+        }
+        
+        .donate-copy-success {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 255, 136, 0.95);
+            color: #000;
+            padding: 20px 30px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            z-index: 10000;
+            box-shadow: 0 0 30px rgba(0, 255, 136, 0.5);
+        }
+        
         .priority-indicator {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 10px;
-            padding: 10px;
+            padding: 8px;
             background: rgba(30, 42, 58, 0.6);
             border-radius: 8px;
         }
@@ -217,8 +282,7 @@
         
         .stat-card:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 255, 136, 0.2);
-            border-color: #00ff88;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
         }
         
         .stat-card.active {
@@ -326,6 +390,8 @@
             border: 1px solid #1e2a3a;
             border-radius: 12px;
             overflow: hidden;
+            position: relative;
+            z-index: 1;
         }
         
         .coin-item {
@@ -437,8 +503,6 @@
         .funding-negative { background: rgba(0, 255, 136, 0.2); color: #00ff88; }
         .cvd-positive { background: rgba(0, 255, 136, 0.2); color: #00ff88; }
         .cvd-negative { background: rgba(255, 71, 87, 0.2); color: #ff4757; }
-        .oi-up { background: rgba(0, 255, 136, 0.2); color: #00ff88; }
-        .oi-down { background: rgba(255, 71, 87, 0.2); color: #ff4757; }
         
         .chart-container {
             background: #1a2332;
@@ -447,6 +511,8 @@
             padding: 15px;
             margin-top: 15px;
             height: 450px;
+            position: relative;
+            z-index: 1;
         }
         
         .advanced-indicators {
@@ -501,107 +567,6 @@
             cursor: pointer;
         }
         
-        /* ============================================
-           СЕКЦИЯ ПОДДЕРЖКИ (КОФЕ)
-           ============================================ */
-        .support-section {
-            background: linear-gradient(135deg, rgba(255, 212, 59, 0.1) 0%, rgba(255, 193, 7, 0.05) 100%);
-            border: 2px solid #ffd43b;
-            border-radius: 12px;
-            padding: 15px;
-            margin-top: 15px;
-            text-align: center;
-        }
-        
-        .support-title {
-            font-size: 16px;
-            font-weight: 700;
-            color: #ffd43b;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-        
-        .support-text {
-            font-size: 12px;
-            color: #6b7280;
-            margin-bottom: 10px;
-        }
-        
-        .card-container {
-            background: linear-gradient(135deg, #1a2332 0%, #2d3748 100%);
-            border: 1px solid #4a5568;
-            border-radius: 8px;
-            padding: 12px;
-            margin: 10px 0;
-            cursor: pointer;
-            transition: all 0.3s;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .card-container::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
-            transition: left 0.5s;
-        }
-        
-        .card-container:hover::before {
-            left: 100%;
-        }
-        
-        .card-container:hover {
-            border-color: #ffd43b;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(255, 212, 59, 0.3);
-        }
-        
-        .card-label {
-            font-size: 10px;
-            color: #6b7280;
-            margin-bottom: 5px;
-            text-transform: uppercase;
-        }
-        
-        .card-number {
-            font-size: 18px;
-            font-weight: 700;
-            color: #fff;
-            letter-spacing: 2px;
-            font-family: 'Courier New', monospace;
-        }
-        
-        .card-hint {
-            font-size: 10px;
-            color: #ffd43b;
-            margin-top: 5px;
-        }
-        
-        .copy-notification {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) scale(0);
-            background: rgba(0, 255, 136, 0.9);
-            color: #000;
-            padding: 15px 25px;
-            border-radius: 8px;
-            font-weight: 700;
-            z-index: 10000;
-            transition: transform 0.3s;
-        }
-        
-        .copy-notification.show {
-            transform: translate(-50%, -50%) scale(1);
-        }
-        
         .footer {
             background: rgba(30, 42, 58, 0.6);
             border: 1px solid #1e2a3a;
@@ -610,6 +575,8 @@
             margin-top: 15px;
             text-align: center;
             font-size: 11px;
+            position: relative;
+            z-index: 1;
         }
         
         .footer-creator {
@@ -660,27 +627,101 @@
             color: #00ff88;
             border: 1px solid #00ff88;
         }
+        
+        /* УВЕДОМЛЕНИЕ О КОПИРОВАНИИ */
+        .copy-notification {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #00ff88, #00d084);
+            color: #000;
+            padding: 20px 30px;
+            border-radius: 15px;
+            font-size: 16px;
+            font-weight: 700;
+            z-index: 10000;
+            box-shadow: 0 0 40px rgba(0, 255, 136, 0.6);
+            text-align: center;
+        }
+        
+        .copy-notification.show {
+            display: block;
+            animation: fadeInOut 2s ease-in-out;
+        }
+        
+        @keyframes fadeInOut {
+            0% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+            20% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            80% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            100% { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+        }
     </style>
 </head>
 <body oncontextmenu="return false;" onselectstart="return false;" ondragstart="return false;">
     
-    <div class="watermark">© 2026 Анатолий Григорьевич Строколенко | <a href="https://t.me/HlopokSU" style="color: inherit;">@HlopokSU</a></div>
+    <div class="watermark">© 2026 Анатолий Григорьевич Строколенко | @HlopokSU</div>
     
-    <!-- ============================================
-         ЛОГОТИП И ЗАГОЛОВОК
-         ============================================ -->
-    <div class="logo-section">
-        <div class="logo-main">🌍</div>
-        <div class="logo-title">WORLD FUTURE ULTIMATE</div>
-        <div class="logo-subtitle">Профессиональный сканер криптовалютных фьючерсов</div>
+    <!-- УВЕДОМЛЕНИЕ О КОПИРОВАНИИ -->
+    <div class="copy-notification" id="copyNotification">
+        ✅ Номер карты скопирован!<br>
+        <span style="font-size: 12px;">Откройте банковское приложение для перевода</span>
+    </div>
+    
+    <!-- ЛОГОТИП -->
+    <div class="logo-container">
+        <svg class="logo-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <!-- Внешний круг чемодана -->
+            <circle cx="50" cy="50" r="48" fill="none" stroke="#ffd700" stroke-width="2" opacity="0.3"/>
+            <circle cx="50" cy="50" r="45" fill="none" stroke="#ffd700" stroke-width="1" opacity="0.5"/>
+            
+            <!-- Фон монеты -->
+            <circle cx="50" cy="50" r="42" fill="url(#coinGradient)"/>
+            
+            <!-- Радиальные линии -->
+            <g opacity="0.3">
+                <line x1="50" y1="10" x2="50" y2="20" stroke="#ffd700" stroke-width="1"/>
+                <line x1="50" y1="80" x2="50" y2="90" stroke="#ffd700" stroke-width="1"/>
+                <line x1="10" y1="50" x2="20" y2="50" stroke="#ffd700" stroke-width="1"/>
+                <line x1="80" y1="50" x2="90" y2="50" stroke="#ffd700" stroke-width="1"/>
+                <line x1="22" y1="22" x2="29" y2="29" stroke="#ffd700" stroke-width="1"/>
+                <line x1="71" y1="71" x2="78" y2="78" stroke="#ffd700" stroke-width="1"/>
+                <line x1="22" y1="78" x2="29" y2="71" stroke="#ffd700" stroke-width="1"/>
+                <line x1="71" y1="29" x2="78" y2="22" stroke="#ffd700" stroke-width="1"/>
+            </g>
+            
+            <!-- Bitcoin символ B -->
+            <text x="50" y="62" font-family="Arial, sans-serif" font-size="40" font-weight="bold" 
+                  fill="url(#bGradient)" text-anchor="middle" stroke="#ffd700" stroke-width="0.5">₿</text>
+            
+            <!-- Блик -->
+            <ellipse cx="35" cy="35" rx="15" ry="10" fill="white" opacity="0.1" transform="rotate(-30 35 35)"/>
+            
+            <defs>
+                <radialGradient id="coinGradient" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" style="stop-color:#2a2a2a;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#1a1a1a;stop-opacity:1" />
+                </radialGradient>
+                <linearGradient id="bGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" style="stop-color:#ffd700;stop-opacity:1" />
+                    <stop offset="50%" style="stop-color:#ff8c00;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#ffd700;stop-opacity:1" />
+                </linearGradient>
+            </defs>
+        </svg>
+        
+        <div class="logo-text">
+            <div class="logo-title">WORLD FUTURE ULTIMATE</div>
+            <div class="logo-subtitle">Профессиональный сканер фьючерсов</div>
+        </div>
+        
         <div class="version-badge">PRO v3.0</div>
     </div>
     
     <div class="header">
         <div class="creator-info">
-            <div class="creator-name">
-                👤 Создатель и разработчик:
-            </div>
+            <div class="creator-name">👤 Создатель и разработчик:</div>
             <div style="margin-bottom: 5px;">Анатолий Григорьевич Строколенко</div>
             <div class="creator-contact">
                 📱 Telegram: <a href="https://t.me/HlopokSU" target="_blank">@HlopokSU</a>
@@ -692,7 +733,7 @@
         </div>
 
         <div class="priority-indicator">
-            <div class="priority-label">🎯 ПРИОРИТЕТ СКАНИРОВАНИЯ:</div>
+            <div class="priority-label"> ПРИОРИТЕТ СКАНИРОВАНИЯ:</div>
             <div class="priority-value">HIGH SPEED ⚡</div>
         </div>
 
@@ -702,7 +743,7 @@
                 <div class="stat-value positive" id="buySignals">0</div>
             </div>
             <div class="stat-card" onclick="setFilter('short')" id="statShort">
-                <div class="stat-label">📉 SHORT СИГНАЛЫ</div>
+                <div class="stat-label"> SHORT СИГНАЛЫ</div>
                 <div class="stat-value negative" id="sellSignals">0</div>
             </div>
             <div class="stat-card" onclick="setFilter('fundingPositive')" id="statFundingPos">
@@ -734,15 +775,26 @@
         <div class="controls">
             <button class="btn active" onclick="setFilter('all')" id="btnAll">Все</button>
             <button class="btn" onclick="setFilter('long')" id="btnLong"> Long</button>
-            <button class="btn" onclick="setFilter('short')" id="btnShort"> Short</button>
+            <button class="btn" onclick="setFilter('short')" id="btnShort">📉 Short</button>
             <button class="btn" onclick="refreshData()"> Scan</button>
+        </div>
+    </div>
+
+    <!-- БЛОК ДОНАТОВ -->
+    <div class="donate-section">
+        <div class="donate-title">️ Поддержать разработчика на кофе</div>
+        <div class="donate-subtitle">Нажмите на номер карты чтобы скопировать</div>
+        <div class="donate-card" onclick="copyCardNumber()">
+            <div class="card-label">MASTERCARD</div>
+            <div class="card-number" id="cardNumber">5599 0021 3864 4176</div>
+            <div class="card-copy-hint">👆 Нажмите чтобы скопировать номер карты</div>
         </div>
     </div>
 
     <div id="messageContainer"></div>
 
     <div class="coin-list" id="coinList">
-        <div class="loading"> Сканирование мирового рынка фьючерсов...</div>
+        <div class="loading">⚡ Сканирование мирового рынка фьючерсов...</div>
     </div>
 
     <div class="chart-container" id="chartContainer" style="display:none;">
@@ -775,28 +827,6 @@
         </div>
     </div>
 
-    <!-- ============================================
-         СЕКЦИЯ ПОДДЕРЖКИ (КОФЕ)
-         ============================================ -->
-    <div class="support-section">
-        <div class="support-title">
-            ☕ Поддержать разработчика
-        </div>
-        <div class="support-text">
-            Если сканер помогает вам зарабатывать,<br>поддержите проект чашечкой кофе!
-        </div>
-        
-        <div class="card-container" onclick="copyCardNumber()">
-            <div class="card-label">Mastercard для кофе</div>
-            <div class="card-number" id="cardNumber">5599 0021 3864 4176</div>
-            <div class="card-hint">Нажмите чтобы скопировать номер карты</div>
-        </div>
-        
-        <div style="font-size: 11px; color: #6b7280; margin-top: 10px;">
-            Или напишите в Telegram: <a href="https://t.me/HlopokSU" target="_blank" style="color: #00d0ff;">@HlopokSU</a>
-        </div>
-    </div>
-
     <div class="footer">
         <div class="footer-creator">© 2026 Анатолий Григорьевич Строколенко</div>
         <div class="footer-contact">
@@ -807,11 +837,6 @@
             WORLD FUTURE ULTIMATE SCANNER PRO v3.0<br>
             Самый быстрый и точный инструмент для торговли фьючерсами
         </div>
-    </div>
-
-    <!-- Уведомление о копировании -->
-    <div class="copy-notification" id="copyNotification">
-        ✅ Номер карты скопирован!
     </div>
 
     <script>
@@ -827,30 +852,48 @@
             }
         });
 
-        // Функция копирования номера карты
+        // КОПИРОВАНИЕ НОМЕРА КАРТЫ
         function copyCardNumber() {
             const cardNumber = '5599002138644176';
-            navigator.clipboard.writeText(cardNumber).then(() => {
-                const notification = document.getElementById('copyNotification');
-                notification.classList.add('show');
-                setTimeout(() => {
-                    notification.classList.remove('show');
-                }, 2000);
-            }).catch(err => {
-                // Fallback для старых браузеров
-                const textArea = document.createElement('textarea');
-                textArea.value = cardNumber;
-                document.body.appendChild(textArea);
-                textArea.select();
+            
+            // Копируем в буфер обмена
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(cardNumber).then(() => {
+                    showCopyNotification();
+                }).catch(() => {
+                    fallbackCopy(cardNumber);
+                });
+            } else {
+                fallbackCopy(cardNumber);
+            }
+        }
+        
+        function fallbackCopy(text) {
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            textArea.style.position = 'fixed';
+            textArea.style.left = '-9999px';
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            
+            try {
                 document.execCommand('copy');
-                document.body.removeChild(textArea);
-                
-                const notification = document.getElementById('copyNotification');
-                notification.classList.add('show');
-                setTimeout(() => {
-                    notification.classList.remove('show');
-                }, 2000);
-            });
+                showCopyNotification();
+            } catch (err) {
+                alert('Номер карты: ' + text);
+            }
+            
+            document.body.removeChild(textArea);
+        }
+        
+        function showCopyNotification() {
+            const notification = document.getElementById('copyNotification');
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 2000);
         }
 
         let allCoins = [];
@@ -902,7 +945,7 @@
             const now = Date.now();
             if (now - lastScanTime < SCAN_INTERVAL) {
                 const wait = Math.ceil((SCAN_INTERVAL - (now - lastScanTime)) / 1000);
-                showMessage('⚡ Подождите ' + wait + ' сек', 'error');
+                showMessage(' Подождите ' + wait + ' сек', 'error');
                 return;
             }
             lastScanTime = now;
