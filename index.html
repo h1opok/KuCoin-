@@ -31,31 +31,27 @@
         }
         .watermark { position: fixed; bottom: 10px; right: 10px; font-size: 10px; color: rgba(255, 255, 255, 0.2); z-index: 9999; pointer-events: none; }
         
-        /* PREMIUM LOGO */
+        /* PREMIUM LOGO & GLASSMORPHISM */
+        .logo-container, .header, .coin-list, .chart-container, .orderbook-panel, .footer {
+            background: var(--bg-panel);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--border-color);
+        }
         .logo-container {
             display: flex; align-items: center; gap: 15px; margin-bottom: 15px; padding: 16px;
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(10px);
-            border: 1px solid var(--border-color); border-radius: 16px; 
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            border-radius: 16px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
         }
         .logo-svg { width: 60px; height: 60px; flex-shrink: 0; }
         .logo-title { font-size: 20px; font-weight: 800; background: linear-gradient(135deg, var(--accent-gold), #ff8c00, var(--accent-gold)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 4px; letter-spacing: -0.5px; }
         .logo-subtitle { font-size: 11px; color: var(--text-secondary); font-weight: 500; }
         .version-badge { background: linear-gradient(135deg, #ff6b6b, #ff4757); color: #fff; padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: 700; box-shadow: 0 4px 12px rgba(255, 71, 87, 0.3); }
 
-        .header, .donate-section, .coin-list, .chart-container, .footer, .orderbook-panel { position: relative; z-index: 1; }
-        .header { 
-            background: var(--bg-panel); backdrop-filter: blur(12px);
-            border: 1px solid var(--border-color); padding: 16px; border-radius: 16px; margin-bottom: 15px; 
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-        }
-        
+        .header { border-radius: 16px; padding: 16px; margin-bottom: 15px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2); }
         .creator-info { background: rgba(0, 255, 136, 0.05); border: 1px solid rgba(0, 255, 136, 0.2); padding: 12px; border-radius: 10px; margin-bottom: 12px; font-size: 12px; }
         .creator-name { color: var(--accent-green); font-weight: 700; margin-bottom: 4px; }
         .creator-contact a { color: #00d0ff; text-decoration: none; border-bottom: 1px dotted #00d0ff; transition: color 0.2s; }
         .creator-contact a:hover { color: var(--accent-green); }
-        
         .disclaimer { background: rgba(255, 212, 59, 0.05); border: 1px solid rgba(255, 212, 59, 0.3); color: #ffd43b; padding: 10px; border-radius: 10px; margin-bottom: 12px; font-size: 11px; text-align: center; line-height: 1.4; }
 
         .donate-section { background: rgba(255, 215, 0, 0.05); border: 1px solid rgba(255, 215, 0, 0.3); border-radius: 16px; padding: 16px; margin-bottom: 15px; text-align: center; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2); }
@@ -87,7 +83,7 @@
         .btn { flex: 1; min-width: 70px; padding: 10px; border: 1px solid var(--border-color); background: rgba(255,255,255,0.03); color: var(--text-primary); border-radius: 8px; font-size: 12px; cursor: pointer; transition: all 0.2s; }
         .btn.active { background: var(--accent-green); color: #000; border-color: var(--accent-green); font-weight: 700; }
 
-        .coin-list { background: var(--bg-panel); backdrop-filter: blur(12px); border: 1px solid var(--border-color); border-radius: 16px; overflow: hidden; }
+        .coin-list { border-radius: 16px; overflow: hidden; }
         .coin-item { padding: 14px; border-bottom: 1px solid var(--border-color); cursor: pointer; transition: all 0.2s; }
         .coin-item:hover { background: rgba(255, 255, 255, 0.05); }
         .coin-item:last-child { border-bottom: none; }
@@ -119,7 +115,7 @@
         .bid-dominant { background: rgba(0, 255, 136, 0.15); color: var(--accent-green); }
         .ask-dominant { background: rgba(255, 71, 87, 0.15); color: var(--accent-red); }
 
-        .chart-container { background: var(--bg-panel); backdrop-filter: blur(12px); border: 1px solid var(--border-color); border-radius: 16px; padding: 16px; margin-top: 15px; }
+        .chart-container { border-radius: 16px; padding: 16px; margin-top: 15px; }
         .chart-header { margin-bottom: 15px; padding: 12px; background: rgba(0,0,0,0.2); border-radius: 10px; border-left: 3px solid var(--accent-green); }
         .chart-title { font-size: 18px; font-weight: 700; color: #fff; margin-bottom: 4px; }
         .chart-price { font-size: 13px; color: var(--text-secondary); }
@@ -129,7 +125,7 @@
         .indicator-title { font-size: 10px; color: var(--text-secondary); margin-bottom: 6px; text-transform: uppercase; }
         .indicator-value { font-size: 16px; font-weight: 700; }
 
-        .orderbook-panel { background: var(--bg-panel); backdrop-filter: blur(12px); border: 1px solid var(--border-color); border-radius: 16px; padding: 16px; margin-top: 15px; }
+        .orderbook-panel { border-radius: 16px; padding: 16px; margin-top: 15px; }
         .ob-header { font-size: 13px; font-weight: 700; color: var(--accent-gold); margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
         .ob-live-dot { width: 8px; height: 8px; background: var(--accent-green); border-radius: 50%; animation: pulse 1.5s infinite; display: inline-block; margin-right: 6px; }
         @keyframes pulse { 0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(0, 255, 136, 0.4); } 50% { opacity: 0.8; box-shadow: 0 0 0 4px rgba(0, 255, 136, 0); } }
@@ -154,7 +150,7 @@
         .success-message { background: rgba(0, 255, 136, 0.1); border: 1px solid rgba(0, 255, 136, 0.3); color: var(--accent-green); padding: 12px; border-radius: 10px; margin: 10px; }
         .btn-retry { margin-top: 10px; padding: 10px; width: 100%; background: var(--accent-green); border: none; border-radius: 8px; color: #000; font-weight: 700; cursor: pointer; }
         
-        .footer { background: var(--bg-panel); backdrop-filter: blur(12px); border: 1px solid var(--border-color); border-radius: 16px; padding: 16px; margin-top: 15px; text-align: center; font-size: 11px; }
+        .footer { border-radius: 16px; padding: 16px; margin-top: 15px; text-align: center; font-size: 11px; }
         .footer-creator { color: var(--accent-green); font-weight: 700; margin-bottom: 6px; }
         .footer-contact a { color: #00d0ff; text-decoration: none; font-weight: 600; }
         .footer-license { color: var(--text-secondary); margin-top: 12px; font-size: 10px; line-height: 1.5; }
@@ -167,6 +163,15 @@
         }
         .copy-notification.show { display: block; animation: fadeInOut 2s ease-in-out; }
         @keyframes fadeInOut { 0% { opacity: 0; transform: translate(-50%, -50%) scale(0.9); } 20% { opacity: 1; transform: translate(-50%, -50%) scale(1); } 80% { opacity: 1; transform: translate(-50%, -50%) scale(1); } 100% { opacity: 0; transform: translate(-50%, -50%) scale(0.9); } }
+
+        /* 📱 MOBILE PERFORMANCE FIX: Отключаем тяжелый blur на мобильных */
+        @media (max-width: 768px), (prefers-reduced-transparency: reduce) {
+            .logo-container, .header, .coin-list, .chart-container, .orderbook-panel, .footer {
+                backdrop-filter: none !important;
+                -webkit-backdrop-filter: none !important;
+                background: rgba(26, 35, 50, 0.95) !important;
+            }
+        }
     </style>
 </head>
 <body oncontextmenu="return false;" onselectstart="return false;" ondragstart="return false;">
@@ -179,14 +184,21 @@
     </div>
     
     <div class="logo-container">
-        <!-- ПРЕМИАЛЬНЫЙ АНИМИРОВАННЫЙ ЛОГОТИП BITCOIN (v3.0 style) -->
+        <!-- ЖИВОЙ АНИМИРОВАННЫЙ ЛОГОТИП BITCOIN -->
         <svg class="logo-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-            <circle cx="50" cy="50" r="48" fill="none" stroke="var(--accent-gold)" stroke-width="1.5" opacity="0.3">
-                <animate attributeName="r" values="48;50;48" dur="3s" repeatCount="indefinite"/>
-                <animate attributeName="opacity" values="0.3;0.1;0.3" dur="3s" repeatCount="indefinite"/>
+            <!-- Вращающееся внешнее кольцо -->
+            <circle cx="50" cy="50" r="48" fill="none" stroke="#ffd700" stroke-width="1.5" stroke-dasharray="4 4" opacity="0.6">
+                <animateTransform attributeName="transform" type="rotate" from="0 50 50" to="360 50 50" dur="12s" repeatCount="indefinite"/>
             </circle>
-            <circle cx="50" cy="50" r="42" fill="url(#coinGradient)" stroke="var(--accent-gold)" stroke-width="1"/>
-            <text x="50" y="62" font-family="Arial, sans-serif" font-size="42" font-weight="bold" fill="url(#bGradient)" text-anchor="middle" stroke="var(--accent-gold)" stroke-width="0.5">₿</text>
+            <!-- Дышащая монета -->
+            <circle cx="50" cy="50" r="42" fill="url(#coinGradient)" stroke="#ffd700" stroke-width="1">
+                <animate attributeName="r" values="42;43;42" dur="3s" repeatCount="indefinite"/>
+            </circle>
+            <!-- Плавающий символ Bitcoin -->
+            <text x="50" y="62" font-family="Arial, sans-serif" font-size="42" font-weight="bold" fill="url(#bGradient)" text-anchor="middle" stroke="#ffd700" stroke-width="0.5">
+                ₿
+                <animateTransform attributeName="transform" type="translate" values="0,0; 0,-2; 0,0" dur="3s" repeatCount="indefinite"/>
+            </text>
             <defs>
                 <radialGradient id="coinGradient" cx="40%" cy="40%" r="60%">
                     <stop offset="0%" stop-color="#2a2a2a"/>
@@ -203,7 +215,7 @@
             <div class="logo-title">WORLD FUTURE ULTIMATE</div>
             <div class="logo-subtitle">Order Book + Liquidity + Confluence Scanner</div>
         </div>
-        <div class="version-badge">PREMIUM v6.0</div>
+        <div class="version-badge">MASTERPIECE v6.1</div>
     </div>
     
     <div class="header">
@@ -353,10 +365,19 @@
     <div class="footer">
         <div class="footer-creator">© 2026 Анатолий Григорьевич Строколенко</div>
         <div class="footer-contact">📱 Telegram: <a href="https://t.me/HlopokSU" target="_blank">@HlopokSU</a></div>
-        <div class="footer-license">🔒 Все права защищены. Копирование запрещено.<br>WORLD FUTURE ULTIMATE SCANNER PREMIUM v6.0</div>
+        <div class="footer-license">🔒 Все права защищены. Копирование запрещено.<br>WORLD FUTURE ULTIMATE SCANNER MASTERPIECE v6.1</div>
     </div>
 
     <script>
+        // Canvas не понимает CSS-переменные, используем литералы
+        const COLORS = {
+            green: '#00ff88',
+            red: '#ff4757',
+            blue: '#00d0ff',
+            orange: '#ff922b',
+            gold: '#ffd700'
+        };
+
         document.addEventListener('keydown', function(e) {
             if (e.ctrlKey && (e.key === 'u' || e.key === 'U' || e.key === 's' || e.key === 'S' || e.key === 'c' || e.key === 'C')) { e.preventDefault(); return false; }
             if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && e.key === 'I')) { e.preventDefault(); return false; }
@@ -409,7 +430,7 @@
             currentTimeframe = tf;
             document.querySelectorAll('.tf-btn').forEach(btn => btn.classList.remove('active'));
             event.currentTarget.classList.add('active');
-            refreshData(true); // Force refresh on manual TF change
+            refreshData(true);
         }
 
         function setFilter(filter) {
@@ -462,12 +483,16 @@
                 allCoins.sort((a, b) => Math.abs(b.score) - Math.abs(a.score));
                 filterCoins(); renderCoinList(); updateStats();
 
-                // Обновляем индикаторы для выбранной монеты, если она есть
+                // Обновляем индикаторы и цену в шапке для выбранной монеты
                 if (selectedCoin) {
                     const fresh = allCoins.find(c => c.symbolFull === selectedCoin.symbolFull);
                     if (fresh) {
                         selectedCoin = fresh;
                         updateIndicators(fresh);
+                        document.getElementById('chartPrice').innerHTML = 
+                            `Цена: <span style="color:#fff; font-weight:600;">$${formatPrice(fresh.price)}</span> ` +
+                            `<span style="color: ${fresh.change24h >= 0 ? COLORS.green : COLORS.red}">` +
+                            `(${fresh.change24h >= 0 ? '+' : ''}${fresh.change24h.toFixed(2)}% за 24ч)</span>`;
                     }
                 }
             } catch (error) {
@@ -549,11 +574,8 @@
                 else { score -= 1; tags.push('macd-bearish'); }
                 if (price <= bbLower * 1.01) { score += 2; tags.push('bb-lower'); }
                 else if (price >= bbUpper * 0.99) { score -= 2; tags.push('bb-upper'); }
-                
-                // Выровненные пороги Funding для согласованности UX (0.05%)
                 if (funding < -0.0005) { score += 2; tags.push('funding-negative'); }
                 else if (funding > 0.0005) { score -= 2; tags.push('funding-positive'); }
-                
                 if (bidAskRatio > 1.3) { score += 2; tags.push('bid-dominant'); }
                 else if (bidAskRatio < 0.7) { score -= 2; tags.push('ask-dominant'); }
 
@@ -650,7 +672,10 @@
             document.getElementById('orderbookPanel').style.display = 'block';
             
             document.getElementById('chartTitle').textContent = `${selectedCoin.symbol} / USDT`;
-            document.getElementById('chartPrice').innerHTML = `Цена: <span style="color:#fff; font-weight:600;">$${formatPrice(selectedCoin.price)}</span> <span style="color: ${selectedCoin.change24h >= 0 ? 'var(--accent-green)' : 'var(--accent-red)'}">(${selectedCoin.change24h >= 0 ? '+' : ''}${selectedCoin.change24h.toFixed(2)}% за 24ч)</span>`;
+            document.getElementById('chartPrice').innerHTML = 
+                `Цена: <span style="color:#fff; font-weight:600;">$${formatPrice(selectedCoin.price)}</span> ` +
+                `<span style="color: ${selectedCoin.change24h >= 0 ? COLORS.green : COLORS.red}">` +
+                `(${selectedCoin.change24h >= 0 ? '+' : ''}${selectedCoin.change24h.toFixed(2)}% за 24ч)</span>`;
 
             document.querySelector('.chart-container').scrollIntoView({ behavior: 'smooth' });
             initChart(selectedCoin);
@@ -661,26 +686,26 @@
 
         function updateIndicators(coin) {
             document.getElementById('rsiValue').textContent = coin.rsi.toFixed(2);
-            document.getElementById('rsiValue').style.color = coin.rsi < 30 ? 'var(--accent-green)' : coin.rsi > 70 ? 'var(--accent-red)' : '#fff';
+            document.getElementById('rsiValue').style.color = coin.rsi < 30 ? COLORS.green : coin.rsi > 70 ? COLORS.red : '#fff';
             
             document.getElementById('macdValue').textContent = coin.macdHist.toFixed(4);
-            document.getElementById('macdValue').style.color = coin.macdHist > 0 ? 'var(--accent-green)' : 'var(--accent-red)';
+            document.getElementById('macdValue').style.color = coin.macdHist > 0 ? COLORS.green : COLORS.red;
             
             document.getElementById('bbValue').textContent = getBBPosition(coin) + '%';
             const bbPos = parseFloat(getBBPosition(coin));
-            document.getElementById('bbValue').style.color = bbPos < 20 ? '#00d0ff' : bbPos > 80 ? 'var(--accent-red)' : '#fff';
+            document.getElementById('bbValue').style.color = bbPos < 20 ? COLORS.blue : bbPos > 80 ? COLORS.red : '#fff';
             
             document.getElementById('fundingValue').textContent = (coin.funding * 100).toFixed(4) + '%';
             let fundColor = '#ffd43b';
-            if (coin.funding > 0) fundColor = 'var(--accent-red)';
-            else if (coin.funding < 0) fundColor = 'var(--accent-green)';
+            if (coin.funding > 0) fundColor = COLORS.red;
+            else if (coin.funding < 0) fundColor = COLORS.green;
             document.getElementById('fundingValue').style.color = fundColor;
             
             document.getElementById('baValue').textContent = coin.bidAskRatio.toFixed(2);
-            document.getElementById('baValue').style.color = coin.bidAskRatio > 1.3 ? 'var(--accent-green)' : coin.bidAskRatio < 0.7 ? 'var(--accent-red)' : '#ffd43b';
+            document.getElementById('baValue').style.color = coin.bidAskRatio > 1.3 ? COLORS.green : coin.bidAskRatio < 0.7 ? COLORS.red : '#ffd43b';
             
             document.getElementById('scoreValue').textContent = (coin.score > 0 ? '+' : '') + coin.score;
-            document.getElementById('scoreValue').style.color = coin.score > 0 ? 'var(--accent-green)' : coin.score < 0 ? 'var(--accent-red)' : '#ffd43b';
+            document.getElementById('scoreValue').style.color = coin.score > 0 ? COLORS.green : coin.score < 0 ? COLORS.red : '#ffd43b';
         }
 
         function updateOrderBookStatic(coin) {
@@ -712,6 +737,9 @@
                 wsConnection = null;
             }
             
+            // Сброс троттлинга при смене монеты
+            lastRender = 0;
+            
             const currentSymbol = symbol.toLowerCase();
             const ws = new WebSocket(`wss://fstream.binance.com/ws/${currentSymbol}@depth20@100ms`);
             wsConnection = ws;
@@ -725,7 +753,6 @@
             ws.onmessage = (event) => {
                 if (wsConnection !== ws) return;
                 
-                // Throttle DOM updates to ~4 times per second for performance
                 const now = performance.now();
                 if (now - lastRender < 250) return;
                 lastRender = now;
@@ -780,8 +807,11 @@
                 rightPriceScale: { borderColor: 'rgba(255,255,255,0.1)' }, timeScale: { borderColor: 'rgba(255,255,255,0.1)' },
             });
 
+            // ИСПОЛЬЗОВАНИЕ ЛИТЕРАЛОВ ЦВЕТОВ ДЛЯ CANVAS
             const candleSeries = chart.addCandlestickSeries({
-                upColor: 'var(--accent-green)', downColor: 'var(--accent-red)', borderUpColor: 'var(--accent-green)', borderDownColor: 'var(--accent-red)', wickUpColor: 'var(--accent-green)', wickDownColor: 'var(--accent-red)'
+                upColor: COLORS.green, downColor: COLORS.red,
+                borderUpColor: COLORS.green, borderDownColor: COLORS.red,
+                wickUpColor: COLORS.green, wickDownColor: COLORS.red
             });
             candleSeries.setData(coin.candles);
 
@@ -795,22 +825,22 @@
 
             if (coin.nearestSupport) {
                 candleSeries.createPriceLine({
-                    price: coin.nearestSupport.price, color: '#00d0ff', lineWidth: 2, lineStyle: 2,
+                    price: coin.nearestSupport.price, color: COLORS.blue, lineWidth: 2, lineStyle: 2,
                     axisLabelVisible: true, title: `S: ${coin.nearestSupport.qty.toFixed(1)}`
                 });
             }
             if (coin.nearestResistance) {
                 candleSeries.createPriceLine({
-                    price: coin.nearestResistance.price, color: '#ff922b', lineWidth: 2, lineStyle: 2,
+                    price: coin.nearestResistance.price, color: COLORS.orange, lineWidth: 2, lineStyle: 2,
                     axisLabelVisible: true, title: `R: ${coin.nearestResistance.qty.toFixed(1)}`
                 });
             }
             candleSeries.createPriceLine({
-                price: coin.largestBid.price, color: 'var(--accent-green)', lineWidth: 1, lineStyle: 3,
+                price: coin.largestBid.price, color: COLORS.green, lineWidth: 1, lineStyle: 3,
                 axisLabelVisible: true, title: `Bid Wall: ${coin.largestBid.qty.toFixed(1)}`
             });
             candleSeries.createPriceLine({
-                price: coin.largestAsk.price, color: 'var(--accent-red)', lineWidth: 1, lineStyle: 3,
+                price: coin.largestAsk.price, color: COLORS.red, lineWidth: 1, lineStyle: 3,
                 axisLabelVisible: true, title: `Ask Wall: ${coin.largestAsk.qty.toFixed(1)}`
             });
 
