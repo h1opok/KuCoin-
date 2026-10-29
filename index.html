@@ -235,6 +235,16 @@
             font-size: 12px;
             text-align: center;
         }
+        .market-bar {
+            height: 8px;
+            background: #1e2a3a;
+            border-radius: 4px;
+            margin: 10px 0;
+            overflow: hidden;
+            display: flex;
+        }
+        .market-bar-buy { background: #00ff88; transition: width 0.5s; }
+        .market-bar-sell { background: #ff4757; transition: width 0.5s; }
     </style>
 </head>
 <body>
@@ -265,6 +275,15 @@
                 <div class="stat-label">СИЛЬНЫЕ DUMPS</div>
                 <div class="stat-value negative" id="strongDumps">0</div>
             </div>
+        </div>
+
+        <div class="market-bar">
+            <div class="market-bar-buy" id="marketBarBuy" style="width:50%"></div>
+            <div class="market-bar-sell" id="marketBarSell" style="width:50%"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:#6b7280;margin-bottom:15px;">
+            <span id="buyPercent">50% BUY</span>
+            <span id="sellPercent">50% SELL</span>
         </div>
 
         <div class="timeframe-selector">
@@ -318,13 +337,13 @@
                 <div class="indicator-bar"><div class="indicator-fill" id="cvdBar" style="width:50%;background:#00ff88"></div></div>
             </div>
             <div class="indicator-card">
-                <div class="indicator-title">Open Interest</div>
-                <div class="indicator-value" id="oiValue">-</div>
-                <div style="font-size:11px;color:#6b7280;margin-top:5px;" id="oiSignal">-</div>
+                <div class="indicator-title">Тренд 24h</div>
+                <div class="indicator-value" id="trendValue">-</div>
+                <div style="font-size:11px;color:#6b7280;margin-top:5px;" id="trendSignal">-</div>
             </div>
         </div>
         <div style="margin-top:15px;padding:12px;background:rgba(30,42,58,0.8);border-radius:8px;">
-            <div style="font-size:11px;color:#6b7280;margin-bottom:8px;">📊 ПРОГНОЗ НА 1-4 ЧАСА</div>
+            <div style="font-size:11px;color:#6b7280;margin-bottom:8px;"> ПРОГНОЗ НА 1-4 ЧАСА</div>
             <div style="font-size:16px;font-weight:700;" id="predictionText">-</div>
             <div style="font-size:12px;color:#6b7280;margin-top:5px;" id="confidenceText">Уверенность: -</div>
         </div>
@@ -368,9 +387,18 @@
                 
                 if (!Array.isArray(data)) throw new Error('Invalid data format');
 
+                // ИСПРАВЛЕНИЕ 1: Только USDT пары + дедупликация
+                const seenSymbols = new Set();
                 const usdtPairs = data
-                    .filter(c => c.symbol && c.symbol.endsWith('USDT') && parseFloat(c.quoteVolume) > 5000000)
-                    .slice(0, 50);
+                    .filter(c => c.symbol && c.symbol.endsWith('USDT'))
+                    .filter(c => {
+                        const base = c.symbol.replace('USDT', '');
+                        if (seenSymbols.has(base)) return false;
+                        seenSymbols.add(base);
+                        return true;
+                    })
+                    .filter(c => parseFloat(c.quoteVolume) > 10000000)
+                    .slice(0, 100);
 
                 allCoins = [];
                 for (const coin of usdtPairs) {
@@ -400,7 +428,7 @@
             const symbol = coin.symbol;
             const price = parseFloat(coin.lastPrice);
             const change24h = parseFloat(coin.priceChangePercent);
-            const volume = parseFloat(coin.volume);
+            const volume24h = parseFloat(coin.volume);
             const quoteVolume = parseFloat(coin.quoteVolume);
             const high24h = parseFloat(coin.highPrice);
             const low24h = parseFloat(coin.lowPrice);
@@ -425,56 +453,75 @@
                 console.error('No candles for', symbol);
             }
 
+            // ИСПРАВЛЕНИЕ 2: Правильный RSI
             const rsi = candles.length > 14 ? calculateRSI(candles) : 50;
             const macd = candles.length > 26 ? calculateMACD(candles) : 0;
             const bb = candles.length > 20 ? calculateBollingerBands(candles) : { upper: price, lower: price, middle: price };
-            const rvol = calculateRVOL(volume, candles);
+            
+            // ИСПРАВЛЕНИЕ 3: Правильный RVOL (сравнение с средним за тот же таймфрейм)
+            const rvol = calculateRVOL(candles);
             const cvd = calculateCVD(candles);
-            const oi = calculateOI(change24h, volume);
 
+            // УЛУЧШЕННЫЙ СКОРИНГ с балансом BUY/SELL
             let score = 0;
             
-            if (rsi < 30) score += 3;
-            else if (rsi < 40) score += 2;
-            else if (rsi > 70) score -= 3;
-            else if (rsi > 60) score -= 2;
+            // RSI (вес: 3) - теперь корректно даёт и negative
+            if (rsi < 25) score += 3;
+            else if (rsi < 35) score += 2;
+            else if (rsi < 45) score += 1;
+            else if (rsi > 75) score -= 3;
+            else if (rsi > 65) score -= 2;
+            else if (rsi > 55) score -= 1;
             
+            // MACD (вес: 2)
             if (macd > 0) score += 2;
             else score -= 2;
             
-            if (price < bb.lower * 1.02) score += 2;
-            else if (price > bb.upper * 0.98) score -= 2;
+            // Bollinger Bands (вес: 2)
+            const bbPosition = (price - bb.lower) / (bb.upper - bb.lower);
+            if (bbPosition < 0.1) score += 2;
+            else if (bbPosition < 0.3) score += 1;
+            else if (bbPosition > 0.9) score -= 2;
+            else if (bbPosition > 0.7) score -= 1;
             
-            if (rvol > 3) score += 2;
-            else if (rvol > 2) score += 1;
+            // RVOL (вес: 2) - только аномальные значения
+            if (rvol > 5) score += 2;
+            else if (rvol > 3) score += 1;
+            else if (rvol < 0.3) score -= 1;
             
-            if (cvd > 0.6) score += 2;
-            else if (cvd < 0.4) score -= 2;
+            // CVD (вес: 2)
+            if (cvd > 0.65) score += 2;
+            else if (cvd > 0.55) score += 1;
+            else if (cvd < 0.35) score -= 2;
+            else if (cvd < 0.45) score -= 1;
             
-            if (change24h > 15) score += 1;
-            else if (change24h < -15) score -= 1;
+            // Тренд 24h (вес: 2) - теперь влияет сильнее
+            if (change24h > 20) score += 2;
+            else if (change24h > 10) score += 1;
+            else if (change24h < -20) score -= 2;
+            else if (change24h < -10) score -= 1;
 
+            // Определение сигнала
             let signal = 'NEUTRAL';
-            if (score >= 6) signal = 'STRONG BUY';
+            if (score >= 7) signal = 'STRONG BUY';
             else if (score >= 3) signal = 'BUY';
-            else if (score <= -6) signal = 'STRONG SELL';
+            else if (score <= -7) signal = 'STRONG SELL';
             else if (score <= -3) signal = 'SELL';
 
             return {
                 symbol: symbol.replace('USDT', ''),
                 price,
                 change24h,
-                volume,
+                volume24h,
                 quoteVolume,
                 rsi,
                 macd,
                 bb,
                 rvol,
                 cvd,
-                oi,
                 predictionScore: score,
                 signal,
-                confidence: Math.min(Math.abs(score) * 12, 95),
+                confidence: Math.min(Math.abs(score) * 10, 95),
                 candles
             };
         }
@@ -491,7 +538,7 @@
             
             const avgGain = gains / 14;
             const avgLoss = losses / 14;
-            const rs = avgGain / (avgLoss || 1);
+            const rs = avgGain / (avgLoss || 0.0001);
             return 100 - (100 / (1 + rs));
         }
 
@@ -519,10 +566,13 @@
             return { upper: sma + 2 * std, lower: sma - 2 * std, middle: sma };
         }
 
-        function calculateRVOL(currentVolume, candles) {
+        // ИСПРАВЛЕНИЕ: RVOL сравнивает текущую свечу со средним за период
+        function calculateRVOL(candles) {
             if (candles.length < 20) return 1;
-            const avgVolume = candles.slice(-20).reduce((sum, c) => sum + c.volume, 0) / 20;
-            return currentVolume / (avgVolume || 1);
+            const recentVolumes = candles.slice(-20).map(c => c.volume);
+            const avgVolume = recentVolumes.reduce((sum, v) => sum + v, 0) / 20;
+            const currentVolume = candles[candles.length - 1].volume;
+            return avgVolume > 0 ? currentVolume / avgVolume : 1;
         }
 
         function calculateCVD(candles) {
@@ -536,18 +586,11 @@
             return total > 0 ? buyVolume / total : 0.5;
         }
 
-        function calculateOI(change24h, volume) {
-            const baseOI = 100;
-            const changeFactor = change24h / 10;
-            const volumeFactor = Math.log10(volume / 1000000 + 1);
-            return baseOI + changeFactor * 10 + volumeFactor * 5;
-        }
-
         function filterCoins() {
             switch(currentFilter) {
                 case 'strongbuy': return allCoins.filter(c => c.signal === 'STRONG BUY');
                 case 'buy': return allCoins.filter(c => c.signal === 'BUY' || c.signal === 'STRONG BUY');
-                case 'sell': return allCoins.filter(c => c.signal.includes('SELL'));
+                case 'sell': return allCoins.filter(c => c.signal === 'SELL' || c.signal === 'STRONG SELL');
                 default: return allCoins;
             }
         }
@@ -555,6 +598,7 @@
         function updateStats() {
             const buy = allCoins.filter(c => c.signal === 'BUY' || c.signal === 'STRONG BUY').length;
             const sell = allCoins.filter(c => c.signal === 'SELL' || c.signal === 'STRONG SELL').length;
+            const neutral = allCoins.filter(c => c.signal === 'NEUTRAL').length;
             const strongPumps = allCoins.filter(c => c.change24h > 15).length;
             const strongDumps = allCoins.filter(c => c.change24h < -15).length;
             
@@ -562,11 +606,20 @@
             document.getElementById('sellSignals').textContent = sell;
             document.getElementById('strongPumps').textContent = strongPumps;
             document.getElementById('strongDumps').textContent = strongDumps;
+
+            // Market bar
+            const total = buy + sell + neutral;
+            const buyPct = total > 0 ? (buy / total) * 100 : 50;
+            const sellPct = total > 0 ? (sell / total) * 100 : 50;
+            document.getElementById('marketBarBuy').style.width = buyPct + '%';
+            document.getElementById('marketBarSell').style.width = sellPct + '%';
+            document.getElementById('buyPercent').textContent = buyPct.toFixed(0) + '% BUY';
+            document.getElementById('sellPercent').textContent = sellPct.toFixed(0) + '% SELL';
         }
 
         function renderCoinList() {
             const container = document.getElementById('coinList');
-            const coinsHTML = filteredCoins.slice(0, 20).map((coin, index) => {
+            const coinsHTML = filteredCoins.slice(0, 25).map((coin, index) => {
                 const signalClass = 'signal-' + coin.signal.toLowerCase().replace(' ', '-');
                 
                 let indicatorsHTML = '';
@@ -686,8 +739,9 @@
             cvdBar.style.width = (coin.cvd * 100) + '%';
             cvdBar.style.background = coin.cvd > 0.5 ? '#00ff88' : '#ff4757';
             
-            document.getElementById('oiValue').textContent = coin.oi.toFixed(1);
-            document.getElementById('oiSignal').textContent = coin.oi > 100 ? 'Растёт' : 'Падает';
+            document.getElementById('trendValue').textContent = (coin.change24h >= 0 ? '+' : '') + coin.change24h.toFixed(2) + '%';
+            document.getElementById('trendValue').style.color = coin.change24h >= 0 ? '#00ff88' : '#ff4757';
+            document.getElementById('trendSignal').textContent = coin.change24h > 10 ? 'Сильный рост' : coin.change24h < -10 ? 'Сильное падение' : 'Умеренный тренд';
         }
 
         function generatePrediction(coin) {
