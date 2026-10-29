@@ -3,22 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="description" content="FUTURES ULTRA SCANNER PRO - Профессиональный сканер криптовалютных фьючерсов">
+    <meta name="description" content="WORLD FUTURE ULTIMATE SCANNER - Профессиональный инструмент для торговли фьючерсами">
     <meta name="author" content="Анатолий Григорьевич Строколенко">
-    <title>FUTURES ULTRA SCANNER PRO v2.0</title>
+    <title>🌍 WORLD FUTURE ULTIMATE SCANNER</title>
     <script src="https://cdn.jsdelivr.net/npm/lightweight-charts@4.1.0/dist/lightweight-charts.standalone.production.js"></script>
     <style>
-        /* ============================================
-           ЗАЩИТА ОТ КОПИРОВАНИЯ И ВЫДЕЛЕНИЯ
-           ============================================ */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
             -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
             user-select: none;
         }
         
@@ -28,13 +23,9 @@
             color: #e0e0e0;
             min-height: 100vh;
             padding: 10px;
-            padding-bottom: 100px;
-            overflow-x: hidden;
+            padding-bottom: 120px;
         }
         
-        /* ============================================
-           WATERMARK ЗАЩИТЫ
-           ============================================ */
         .watermark {
             position: fixed;
             bottom: 10px;
@@ -45,16 +36,13 @@
             pointer-events: none;
         }
         
-        /* ============================================
-           HEADER И НАВИГАЦИЯ
-           ============================================ */
         .header {
             background: linear-gradient(135deg, #1a2332 0%, #0f1419 100%);
-            border: 1px solid #1e2a3a;
+            border: 2px solid #00ff88;
             padding: 15px;
             border-radius: 12px;
             margin-bottom: 15px;
-            position: relative;
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.3);
         }
         
         .logo-container {
@@ -65,7 +53,7 @@
         }
         
         .logo {
-            font-size: 20px;
+            font-size: 22px;
             font-weight: 700;
             background: linear-gradient(135deg, #00ff88 0%, #00d084 100%);
             -webkit-background-clip: text;
@@ -79,24 +67,42 @@
             border-radius: 6px;
             font-size: 10px;
             font-weight: 700;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
         }
         
         .creator-info {
             background: rgba(0, 255, 136, 0.1);
             border: 1px solid #00ff88;
-            padding: 8px;
+            padding: 10px;
             border-radius: 8px;
             margin-bottom: 10px;
-            font-size: 11px;
+            font-size: 12px;
         }
         
         .creator-name {
             color: #00ff88;
             font-weight: 700;
+            margin-bottom: 5px;
         }
         
         .creator-contact {
             color: #ffd43b;
+            font-weight: 600;
+        }
+        
+        .creator-contact a {
+            color: #00d0ff;
+            text-decoration: none;
+            border-bottom: 1px dotted #00d0ff;
+        }
+        
+        .creator-contact a:hover {
+            color: #00ff88;
         }
         
         .disclaimer {
@@ -110,9 +116,27 @@
             text-align: center;
         }
         
-        /* ============================================
-           СТАТИСТИКА
-           ============================================ */
+        .priority-indicator {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 8px;
+            background: rgba(30, 42, 58, 0.6);
+            border-radius: 8px;
+        }
+        
+        .priority-label {
+            font-size: 11px;
+            color: #6b7280;
+        }
+        
+        .priority-value {
+            font-size: 14px;
+            font-weight: 700;
+            color: #00ff88;
+        }
+        
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -141,27 +165,25 @@
         
         .positive { color: #00ff88; }
         .negative { color: #ff4757; }
+        .warning { color: #ffd43b; }
         
-        /* ============================================
-           MARKET BAR
-           ============================================ */
         .market-bar {
-            height: 6px;
+            height: 8px;
             background: #1e2a3a;
-            border-radius: 3px;
-            margin: 8px 0;
+            border-radius: 4px;
+            margin: 10px 0;
             overflow: hidden;
             display: flex;
         }
         
         .market-bar-buy {
-            background: #00ff88;
-            transition: width 0.3s;
+            background: linear-gradient(90deg, #00ff88, #00d084);
+            transition: width 0.5s;
         }
         
         .market-bar-sell {
-            background: #ff4757;
-            transition: width 0.3s;
+            background: linear-gradient(90deg, #ff4757, #ff6b6b);
+            transition: width 0.5s;
         }
         
         .speed-indicator {
@@ -172,9 +194,6 @@
             margin-bottom: 10px;
         }
         
-        /* ============================================
-           УПРАВЛЕНИЕ
-           ============================================ */
         .timeframe-selector {
             display: flex;
             gap: 6px;
@@ -183,7 +202,7 @@
         }
         
         .tf-btn {
-            padding: 6px 12px;
+            padding: 8px 14px;
             border: 1px solid #1e2a3a;
             background: #1a2332;
             color: #fff;
@@ -191,11 +210,14 @@
             font-size: 11px;
             cursor: pointer;
             white-space: nowrap;
+            transition: all 0.3s;
         }
         
         .tf-btn.active {
             background: #00ff88;
             color: #000;
+            border-color: #00ff88;
+            font-weight: 700;
         }
         
         .controls {
@@ -215,6 +237,7 @@
             border-radius: 8px;
             font-size: 12px;
             cursor: pointer;
+            transition: all 0.3s;
         }
         
         .btn.active {
@@ -224,9 +247,6 @@
             font-weight: 700;
         }
         
-        /* ============================================
-           СПИСОК МОНЕТ
-           ============================================ */
         .coin-list {
             background: #1a2332;
             border: 1px solid #1e2a3a;
@@ -238,9 +258,14 @@
             padding: 12px;
             border-bottom: 1px solid #1e2a3a;
             cursor: pointer;
+            transition: all 0.3s;
         }
         
-        .coin-item:hover { background: #232d3f; }
+        .coin-item:hover { 
+            background: #232d3f;
+            transform: translateX(5px);
+        }
+        
         .coin-item:last-child { border-bottom: none; }
         
         .coin-header {
@@ -251,13 +276,13 @@
         }
         
         .coin-name {
-            font-size: 15px;
+            font-size: 16px;
             font-weight: 700;
             color: #fff;
         }
         
         .coin-price {
-            font-size: 14px;
+            font-size: 15px;
             font-weight: 600;
         }
         
@@ -338,10 +363,9 @@
         .funding-negative { background: rgba(0, 255, 136, 0.2); color: #00ff88; }
         .cvd-positive { background: rgba(0, 255, 136, 0.2); color: #00ff88; }
         .cvd-negative { background: rgba(255, 71, 87, 0.2); color: #ff4757; }
+        .oi-up { background: rgba(0, 255, 136, 0.2); color: #00ff88; }
+        .oi-down { background: rgba(255, 71, 87, 0.2); color: #ff4757; }
         
-        /* ============================================
-           ГРАФИК И ИНДИКАТОРЫ
-           ============================================ */
         .chart-container {
             background: #1a2332;
             border: 1px solid #1e2a3a;
@@ -376,9 +400,6 @@
             font-weight: 700;
         }
         
-        /* ============================================
-           ЗАГРУЗКА И ОШИБКИ
-           ============================================ */
         .loading {
             text-align: center;
             padding: 30px;
@@ -406,9 +427,6 @@
             cursor: pointer;
         }
         
-        /* ============================================
-           FOOTER
-           ============================================ */
         .footer {
             background: rgba(30, 42, 58, 0.6);
             border: 1px solid #1e2a3a;
@@ -425,8 +443,14 @@
             margin-bottom: 5px;
         }
         
-        .footer-contact {
-            color: #ffd43b;
+        .footer-contact a {
+            color: #00d0ff;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        .footer-contact a:hover {
+            color: #00ff88;
         }
         
         .footer-license {
@@ -434,54 +458,81 @@
             margin-top: 10px;
             font-size: 10px;
         }
+        
+        .priority-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 9px;
+            font-weight: 700;
+            margin-left: 5px;
+        }
+        
+        .priority-high {
+            background: rgba(255, 71, 87, 0.3);
+            color: #ff4757;
+            border: 1px solid #ff4757;
+        }
+        
+        .priority-medium {
+            background: rgba(255, 212, 59, 0.3);
+            color: #ffd43b;
+            border: 1px solid #ffd43b;
+        }
+        
+        .priority-low {
+            background: rgba(0, 255, 136, 0.3);
+            color: #00ff88;
+            border: 1px solid #00ff88;
+        }
     </style>
 </head>
 <body oncontextmenu="return false;" onselectstart="return false;" ondragstart="return false;">
     
-    <!-- WATERMARK ЗАЩИТЫ -->
-    <div class="watermark">© 2026 Анатолий Григорьевич Строколенко | @HlopokSU</div>
+    <div class="watermark">© 2026 Анатолий Григорьевич Строколенко | <a href="https://t.me/HlopokSU" style="color: inherit;">@HlopokSU</a></div>
     
-    <!-- ============================================
-         HEADER С НАВИГАЦИЕЙ
-         ============================================ -->
     <div class="header">
         <div class="logo-container">
-            <div class="logo">⚡ FUTURES ULTRA SCANNER PRO</div>
-            <div class="version-badge">v2.0</div>
+            <div class="logo">🌍 WORLD FUTURE ULTIMATE</div>
+            <div class="version-badge">PRO v3.0</div>
         </div>
         
-        <!-- ИНФОРМАЦИЯ О СОЗДАТЕЛЕ -->
         <div class="creator-info">
-            <div><span class="creator-name">Создатель:</span> Анатолий Григорьевич Строколенко</div>
-            <div><span class="creator-contact">Telegram:</span> @HlopokSU</div>
+            <div class="creator-name">👤 Создатель и разработчик:</div>
+            <div style="margin-bottom: 5px;">Анатолий Григорьевич Строколенко</div>
+            <div class="creator-contact">
+                📱 Telegram: <a href="https://t.me/HlopokSU" target="_blank">@HlopokSU</a>
+            </div>
         </div>
         
-        <!-- ДИСКЛЕЙМЕР -->
         <div class="disclaimer">
-            ⚠️ Профессиональный инструмент анализа. Не финансовая рекомендация!
+            ⚠️ Профессиональный инструмент. Не финансовая рекомендация! Торгуйте на свой страх и риск.
         </div>
 
-        <!-- СТАТИСТИКА РЫНКА -->
+        <div class="priority-indicator">
+            <div class="priority-label">🎯 ПРИОРИТЕТ СКАНИРОВАНИЯ:</div>
+            <div class="priority-value">HIGH SPEED ⚡</div>
+        </div>
+
         <div class="stats-grid">
             <div class="stat-card">
-                <div class="stat-label">LONG СИГНАЛЫ</div>
+                <div class="stat-label">📈 LONG СИГНАЛЫ</div>
                 <div class="stat-value positive" id="buySignals">0</div>
             </div>
             <div class="stat-card">
-                <div class="stat-label">SHORT СИГНАЛЫ</div>
+                <div class="stat-label">📉 SHORT СИГНАЛЫ</div>
                 <div class="stat-value negative" id="sellSignals">0</div>
             </div>
             <div class="stat-card">
-                <div class="stat-label">FUNDING > 0</div>
+                <div class="stat-label"> FUNDING > 0</div>
                 <div class="stat-value negative" id="positiveFunding">0</div>
             </div>
             <div class="stat-card">
-                <div class="stat-label">FUNDING < 0</div>
+                <div class="stat-label">💵 FUNDING < 0</div>
                 <div class="stat-value positive" id="negativeFunding">0</div>
             </div>
         </div>
 
-        <!-- MARKET BAR -->
         <div class="market-bar">
             <div class="market-bar-buy" id="marketBarBuy" style="width:50%"></div>
             <div class="market-bar-sell" id="marketBarSell" style="width:50%"></div>
@@ -491,31 +542,27 @@
             <span id="sellPercent">50% SHORT</span>
         </div>
 
-        <!-- ТАЙМФРЕЙМЫ -->
         <div class="timeframe-selector">
-            <button class="tf-btn active" onclick="setTimeframe('5m')">5м</button>
-            <button class="tf-btn" onclick="setTimeframe('15m')">15м</button>
-            <button class="tf-btn" onclick="setTimeframe('1h')">1ч</button>
+            <button class="tf-btn active" onclick="setTimeframe('5m')">5м (Scalp)</button>
+            <button class="tf-btn" onclick="setTimeframe('15m')">15м (Intra)</button>
+            <button class="tf-btn" onclick="setTimeframe('1h')">1ч (Swing)</button>
+            <button class="tf-btn" onclick="setTimeframe('4h')">4ч (Trend)</button>
         </div>
 
-        <!-- ФИЛЬТРЫ -->
         <div class="controls">
             <button class="btn active" onclick="setFilter('all')">Все</button>
-            <button class="btn" onclick="setFilter('long')">Long</button>
-            <button class="btn" onclick="setFilter('short')">Short</button>
-            <button class="btn" onclick="refreshData()">⚡ Scan</button>
+            <button class="btn" onclick="setFilter('long')">📈 Long</button>
+            <button class="btn" onclick="setFilter('short')">📉 Short</button>
+            <button class="btn" onclick="refreshData()"> Scan</button>
         </div>
     </div>
 
-    <!-- КОНТЕЙНЕР СООБЩЕНИЙ -->
     <div id="messageContainer"></div>
 
-    <!-- СПИСОК МОНЕТ -->
     <div class="coin-list" id="coinList">
-        <div class="loading">⚡ Сканирование фьючерсов...</div>
+        <div class="loading">⚡ Сканирование мирового рынка фьючерсов...</div>
     </div>
 
-    <!-- ГРАФИК И ДЕТАЛЬНЫЙ АНАЛИЗ -->
     <div class="chart-container" id="chartContainer" style="display:none;">
         <div id="mainChart" style="width:100%;height:250px;"></div>
         <div class="advanced-indicators">
@@ -546,20 +593,20 @@
         </div>
     </div>
 
-    <!-- FOOTER С ИНФОРМАЦИЕЙ -->
     <div class="footer">
         <div class="footer-creator">© 2026 Анатолий Григорьевич Строколенко</div>
-        <div class="footer-contact">Telegram: @HlopokSU</div>
+        <div class="footer-contact">
+            📱 Telegram: <a href="https://t.me/HlopokSU" target="_blank">@HlopokSU</a>
+        </div>
         <div class="footer-license">
-            Все права защищены. Копирование запрещено.<br>
-            FUTURES ULTRA SCANNER PRO v2.0
+            🔒 Все права защищены. Копирование запрещено.<br>
+            WORLD FUTURE ULTIMATE SCANNER PRO v3.0<br>
+            Самый быстрый и точный инструмент для торговли фьючерсами
         </div>
     </div>
 
     <script>
-        /* ============================================
-           ЗАЩИТА ОТ КОПИРОВАНИЯ КОДА
-           ============================================ */
+        // ЗАЩИТА ОТ КОПИРОВАНИЯ
         document.addEventListener('keydown', function(e) {
             if (e.ctrlKey && (e.key === 'u' || e.key === 'U' || e.key === 's' || e.key === 'S' || e.key === 'c' || e.key === 'C')) {
                 e.preventDefault();
@@ -571,9 +618,6 @@
             }
         });
 
-        /* ============================================
-           ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ
-           ============================================ */
         let allCoins = [];
         let filteredCoins = [];
         let currentFilter = 'all';
@@ -581,19 +625,13 @@
         let selectedCoin = null;
         let chart = null;
         let lastScanTime = 0;
-        const SCAN_INTERVAL = 10000; // Минимум 10 сек между сканами
+        const SCAN_INTERVAL = 10000;
 
-        /* ============================================
-           ИНИЦИАЛИЗАЦИЯ ПРИ ЗАГРУЗКЕ
-           ============================================ */
         window.addEventListener('load', () => {
             refreshData();
-            setInterval(refreshData, 30000); // Автообновление каждые 30 сек
+            setInterval(refreshData, 30000);
         });
 
-        /* ============================================
-           НАВИГАЦИЯ: УСТАНОВКА ТАЙМФРЕЙМА
-           ============================================ */
         function setTimeframe(tf) {
             currentTimeframe = tf;
             document.querySelectorAll('.tf-btn').forEach(btn => btn.classList.remove('active'));
@@ -601,9 +639,6 @@
             refreshData();
         }
 
-        /* ============================================
-           НАВИГАЦИЯ: УСТАНОВКА ФИЛЬТРА
-           ============================================ */
         function setFilter(filter) {
             currentFilter = filter;
             document.querySelectorAll('.btn').forEach(btn => btn.classList.remove('active'));
@@ -612,10 +647,6 @@
             renderCoinList();
         }
 
-        /* ============================================
-           ОСНОВНАЯ ФУНКЦИЯ СКАНИРОВАНИЯ
-           Использует Binance Futures API (самый быстрый)
-           ============================================ */
         async function refreshData() {
             const now = Date.now();
             if (now - lastScanTime < SCAN_INTERVAL) {
@@ -628,21 +659,21 @@
             try {
                 document.getElementById('coinList').innerHTML = '<div class="loading">⚡ Сканирование...</div>';
                 
-                // ПАРАЛЛЕЛЬНАЯ ЗАГРУЗКА ВСЕХ ДАННЫХ
-                const [tickers, fundingRates] = await Promise.all([
+                // ПАРАЛЛЕЛЬНАЯ ЗАГРУЗКА ВСЕХ ДАННЫХ С BINANCE FUTURES
+                const [tickers, fundingRates, openInterest] = await Promise.all([
                     fetch('https://fapi.binance.com/fapi/v1/ticker/24hr').then(r => r.json()),
-                    fetch('https://fapi.binance.com/fapi/v1/premiumIndex').then(r => r.json())
+                    fetch('https://fapi.binance.com/fapi/v1/premiumIndex').then(r => r.json()),
+                    fetch('https://fapi.binance.com/fapi/v1/openInterest').then(r => r.json()).catch(() => [])
                 ]);
 
                 if (!Array.isArray(tickers)) throw new Error('Invalid data');
 
-                // Создаём мапу funding rate для быстрого доступа
                 const fundingMap = new Map();
                 if (Array.isArray(fundingRates)) {
                     fundingRates.forEach(f => fundingMap.set(f.symbol, parseFloat(f.lastFundingRate)));
                 }
 
-                // Фильтруем топ-30 по объёму + дедупликация
+                // ФИЛЬТРАЦИЯ: ТОП-50 ПО ОБЪЁМУ + ДЕДУПЛИКАЦИЯ
                 const seenSymbols = new Set();
                 const topPairs = tickers
                     .filter(c => c.symbol && c.symbol.endsWith('USDT'))
@@ -653,9 +684,9 @@
                         return true;
                     })
                     .sort((a, b) => parseFloat(b.quoteVolume) - parseFloat(a.quoteVolume))
-                    .slice(0, 30);
+                    .slice(0, 50);
 
-                // ПАРАЛЛЕЛЬНЫЙ АНАЛИЗ ВСЕХ МОНЕТ
+                // ПАРАЛЛЕЛЬНЫЙ АНАЛИЗ
                 const analysisPromises = topPairs.map(coin => analyzeCoin(coin, fundingMap));
                 allCoins = await Promise.all(analysisPromises);
 
@@ -674,10 +705,6 @@
             }
         }
 
-        /* ============================================
-           АНАЛИЗ ОДНОЙ МОНЕТЫ
-           Все индикаторы: RSI, MACD, Funding, CVD, RVOL
-           ============================================ */
         async function analyzeCoin(coin, fundingMap) {
             try {
                 const symbol = coin.symbol;
@@ -686,7 +713,6 @@
                 const volume24h = parseFloat(coin.volume);
                 const quoteVolume = parseFloat(coin.quoteVolume);
 
-                // Получаем свечи (50 штук для скорости)
                 const klinesResponse = await fetch(
                     `https://fapi.binance.com/fapi/v1/klines?symbol=${symbol}&interval=${currentTimeframe}&limit=50`
                 );
@@ -706,15 +732,15 @@
 
                 if (candles.length < 26) return null;
 
-                // РАСЧЁТ ИНДИКАТОРОВ
                 const rsi = calculateRSI(candles);
                 const macd = calculateMACD(candles);
                 const rvol = calculateRVOL(candles);
                 const cvd = calculateCVD(candles);
                 const funding = fundingMap.get(symbol) || 0;
 
-                // СКОРИНГ СИГНАЛА (максимум 13 баллов)
+                // УЛУЧШЕННЫЙ СКОРИНГ С ПРИОРИТЕТАМИ
                 let score = 0;
+                let priority = 'low';
                 
                 // RSI (вес: 3)
                 if (rsi < 25) score += 3;
@@ -726,26 +752,34 @@
                 if (macd > 0) score += 2;
                 else score -= 2;
                 
-                // Funding Rate (вес: 3) - КЛЮЧЕВОЙ для фьючерсов
-                if (funding < -0.01) score += 3;
-                else if (funding < -0.005) score += 2;
-                else if (funding > 0.01) score -= 3;
-                else if (funding > 0.005) score -= 2;
+                // Funding Rate (вес: 4) - ВЫСОКИЙ ПРИОРИТЕТ
+                if (funding < -0.01) { score += 4; priority = 'high'; }
+                else if (funding < -0.005) { score += 3; priority = 'medium'; }
+                else if (funding > 0.01) { score -= 4; priority = 'high'; }
+                else if (funding > 0.005) { score -= 3; priority = 'medium'; }
                 
-                // CVD (вес: 2)
-                if (cvd > 0.6) score += 2;
-                else if (cvd < 0.4) score -= 2;
+                // CVD (вес: 3)
+                if (cvd > 0.65) score += 3;
+                else if (cvd > 0.55) score += 1;
+                else if (cvd < 0.35) score -= 3;
+                else if (cvd < 0.45) score -= 1;
                 
-                // RVOL (вес: 1)
-                if (rvol > 2) score += 1;
-                else if (rvol < 0.5) score -= 1;
+                // RVOL (вес: 2)
+                if (rvol > 3) score += 2;
+                else if (rvol > 2) score += 1;
+                else if (rvol < 0.3) score -= 2;
+                
+                // Тренд 24h (вес: 2)
+                if (change24h > 20) score += 2;
+                else if (change24h > 10) score += 1;
+                else if (change24h < -20) score -= 2;
+                else if (change24h < -10) score -= 1;
 
-                // ОПРЕДЕЛЕНИЕ СИГНАЛА
                 let signal = 'NEUTRAL';
-                if (score >= 6) signal = 'STRONG LONG';
-                else if (score >= 3) signal = 'LONG';
-                else if (score <= -6) signal = 'STRONG SHORT';
-                else if (score <= -3) signal = 'SHORT';
+                if (score >= 8) signal = 'STRONG LONG';
+                else if (score >= 4) signal = 'LONG';
+                else if (score <= -8) signal = 'STRONG SHORT';
+                else if (score <= -4) signal = 'SHORT';
 
                 return {
                     symbol: symbol.replace('USDT', ''),
@@ -760,7 +794,8 @@
                     funding,
                     score,
                     signal,
-                    confidence: Math.min(Math.abs(score) * 12, 95),
+                    priority,
+                    confidence: Math.min(Math.abs(score) * 10, 95),
                     candles
                 };
             } catch (e) {
@@ -769,10 +804,6 @@
             }
         }
 
-        /* ============================================
-           ИНДИКАТОР: RSI (Relative Strength Index)
-           Период: 14
-           ============================================ */
         function calculateRSI(candles) {
             const closes = candles.map(c => c.close);
             let gains = 0, losses = 0;
@@ -787,10 +818,6 @@
             return 100 - (100 / (1 + rs));
         }
 
-        /* ============================================
-           ИНДИКАТОР: MACD
-           EMA12 - EMA26
-           ============================================ */
         function calculateMACD(candles) {
             const closes = candles.map(c => c.close);
             const ema12 = calculateEMA(closes, 12);
@@ -807,10 +834,6 @@
             return ema;
         }
 
-        /* ============================================
-           ИНДИКАТОР: RVOL (Relative Volume)
-           Текущий объём / Средний за 20 свечей
-           ============================================ */
         function calculateRVOL(candles) {
             if (candles.length < 20) return 1;
             const recentVolumes = candles.slice(-20).map(c => c.volume);
@@ -819,10 +842,6 @@
             return avgVolume > 0 ? currentVolume / avgVolume : 1;
         }
 
-        /* ============================================
-           ИНДИКАТОР: CVD (Cumulative Volume Delta)
-           Покупки vs Продажи
-           ============================================ */
         function calculateCVD(candles) {
             if (candles.length === 0) return 0.5;
             let buyVolume = 0, sellVolume = 0;
@@ -834,9 +853,6 @@
             return total > 0 ? buyVolume / total : 0.5;
         }
 
-        /* ============================================
-           ФИЛЬТРАЦИЯ МОНЕТ
-           ============================================ */
         function filterCoins() {
             switch(currentFilter) {
                 case 'long': return allCoins.filter(c => c.signal === 'LONG' || c.signal === 'STRONG LONG');
@@ -845,9 +861,6 @@
             }
         }
 
-        /* ============================================
-           ОБНОВЛЕНИЕ СТАТИСТИКИ
-           ============================================ */
         function updateStats() {
             const long = allCoins.filter(c => c.signal === 'LONG' || c.signal === 'STRONG LONG').length;
             const short = allCoins.filter(c => c.signal === 'SHORT' || c.signal === 'STRONG SHORT').length;
@@ -868,13 +881,12 @@
             document.getElementById('sellPercent').textContent = shortPct.toFixed(0) + '% SHORT';
         }
 
-        /* ============================================
-           ОТРИСОВКА СПИСКА МОНЕТ
-           ============================================ */
         function renderCoinList() {
             const container = document.getElementById('coinList');
-            const coinsHTML = filteredCoins.slice(0, 20).map((coin, index) => {
+            const coinsHTML = filteredCoins.slice(0, 25).map((coin, index) => {
                 const signalClass = 'signal-' + coin.signal.toLowerCase().replace(' ', '-');
+                const priorityClass = 'priority-' + coin.priority;
+                const priorityText = coin.priority === 'high' ? 'HIGH' : coin.priority === 'medium' ? 'MED' : 'LOW';
                 
                 let indicatorsHTML = '';
                 if (coin.rsi < 30) indicatorsHTML += '<span class="indicator-tag rsi-oversold">RSI ' + coin.rsi.toFixed(0) + '</span>';
@@ -895,6 +907,7 @@
                         <div>
                             <span class="coin-name">${index + 1}. ${coin.symbol}</span>
                             <span class="indicator-tag ${signalClass}">${coin.signal}</span>
+                            <span class="priority-badge ${priorityClass}">${priorityText}</span>
                         </div>
                         <div class="coin-price ${coin.change24h >= 0 ? 'positive' : 'negative'}">
                             $${coin.price < 1 ? coin.price.toFixed(6) : coin.price.toFixed(2)} 
@@ -934,9 +947,6 @@
             container.innerHTML = coinsHTML || '<div class="loading">Нет данных</div>';
         }
 
-        /* ============================================
-           ВЫБОР МОНЕТЫ ДЛЯ ДЕТАЛЬНОГО АНАЛИЗА
-           ============================================ */
         function selectCoin(symbol) {
             selectedCoin = allCoins.find(c => c.symbol === symbol);
             if (!selectedCoin) return;
@@ -948,9 +958,6 @@
             updateIndicators(selectedCoin);
         }
 
-        /* ============================================
-           ИНИЦИАЛИЗАЦИЯ ГРАФИКА
-           ============================================ */
         function initChart(coin) {
             const container = document.getElementById('mainChart');
             container.innerHTML = '';
@@ -976,9 +983,6 @@
             chart.timeScale().fitContent();
         }
 
-        /* ============================================
-           ОБНОВЛЕНИЕ ИНДИКАТОРОВ
-           ============================================ */
         function updateIndicators(coin) {
             document.getElementById('rsiValue').textContent = coin.rsi.toFixed(2);
             document.getElementById('rsiValue').style.color = coin.rsi < 30 ? '#00ff88' : coin.rsi > 70 ? '#ff4757' : '#fff';
@@ -998,9 +1002,6 @@
             document.getElementById('signalValue').style.color = coin.signal.includes('LONG') ? '#00ff88' : coin.signal.includes('SHORT') ? '#ff4757' : '#ffd43b';
         }
 
-        /* ============================================
-           ПОКАЗ СООБЩЕНИЙ
-           ============================================ */
         function showMessage(text, type) {
             const container = document.getElementById('messageContainer');
             const div = document.createElement('div');
