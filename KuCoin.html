@@ -79,6 +79,10 @@
             color: #00d084; padding: 15px; border-radius: 10px; margin-bottom: 15px;
         }
         .proxy-info { font-size: 11px; color: #667788; margin-top: 5px; }
+        .debug-log {
+            background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px;
+            font-size: 11px; color: #8899a6; margin-top: 10px; max-height: 150px; overflow-y: auto;
+        }
     </style>
 </head>
 <body>
@@ -96,6 +100,7 @@
             </div>
         </div>
         <div class="proxy-info" id="proxyInfo">Прокси: проверка...</div>
+        <div class="debug-log" id="debugLog"></div>
     </div>
 
     <div id="messageContainer"></div>
@@ -154,48 +159,72 @@
         let chart = null;
         let selectedPair = null;
         let workingProxy = null;
+        let debugMessages = [];
 
-        // Список CORS прокси с фолбэком
-        const CORS_PROXIES = [
-            url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
-            url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
-            url => `https://cors-anywhere.herokuapp.com/${url}`,
-            url => `https://thingproxy.freeboard.io/fetch/${url}`,
-            url => url // прямое подключение (последняя попытка)
+        function log(msg) {
+            const time = new Date().toLocaleTimeString('ru-RU');
+            debugMessages.push(`[${time}] ${msg}`);
+            if (debugMessages.length > 20) debugMessages.shift();
+            document.getElementById('debugLog').innerHTML = debugMessages.join('<br>');
+        }
+
+        // Прокси с правильной обработкой ответов
+        const PROXIES = [
+            {
+                name: 'corsproxy.io',
+                build: url => `https://corsproxy.io/?${encodeURIComponent(url)}`,
+                parse: resp => resp.json()
+            },
+            {
+                name: 'codetabs',
+                build: url => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
+                parse: resp => resp.json()
+            },
+            {
+                name: 'allorigins',
+                build: url => `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
+                parse: async resp => {
+                    const data = await resp.json();
+                    // allorigins оборачивает ответ в { contents: "..." }
+                    return JSON.parse(data.contents);
+                }
+            },
+            {
+                name: 'прямой',
+                build: url => url,
+                parse: resp => resp.json()
+            }
         ];
 
-        const PROXY_NAMES = ['corsproxy.io', 'allorigins', 'cors-anywhere', 'thingproxy', 'прямой'];
-
-        // Универсальный fetch с прокси-фолбэком
-        async function fetchWithProxy(url) {
+        async function fetchWithProxy(url, label = '') {
             let lastError = null;
 
-            for (let i = 0; i < CORS_PROXIES.length; i++) {
+            for (const proxy of PROXIES) {
                 try {
-                    const proxiedUrl = CORS_PROXIES[i](url);
+                    log(`Пробую ${proxy.name} для ${label || url.substring(0, 50)}...`);
+                    const proxiedUrl = proxy.build(url);
                     const response = await fetch(proxiedUrl, {
                         method: 'GET',
                         headers: { 'Accept': 'application/json' }
                     });
 
-                    if (response.ok) {
-                        workingProxy = PROXY_NAMES[i];
-                        document.getElementById('proxyInfo').textContent = `Прокси: ${workingProxy} ✓`;
-                        return response;
+                    if (!response.ok) {
+                        log(`  ${proxy.name}: HTTP ${response.status}`);
+                        continue;
                     }
+
+                    const data = await proxy.parse(response);
+                    workingProxy = proxy.name;
+                    document.getElementById('proxyInfo').textContent = `Прокси: ${proxy.name} ✓`;
+                    log(`  ${proxy.name}: OK ✓`);
+                    return data;
                 } catch (e) {
                     lastError = e;
-                    console.log(`Прокси ${PROXY_NAMES[i]} не сработал:`, e.message);
+                    log(`  ${proxy.name}: ошибка — ${e.message}`);
                 }
             }
 
             throw lastError || new Error('Все прокси недоступны');
-        }
-
-        // Получение JSON через прокси
-        async function fetchJSON(url) {
-            const response = await fetchWithProxy(url);
-            return await response.json();
         }
 
         window.addEventListener('load', () => {
@@ -209,14 +238,14 @@
             const statusText = document.getElementById('apiStatusText');
 
             try {
-                const data = await fetchJSON('https://api.kucoin.com/api/v1/timestamp');
-                if (data && (data.code === '200000' || data.data)) {
+                const data = await fetchWithProxy('https://api.kucoin.com/api/v1/timestamp', 'timestamp');
+                if (data && (data.code === '200000' || data.data || data.code)) {
                     statusDot.classList.add('active');
                     statusText.textContent = 'API: Подключено';
                     showMessage('API KuCoin доступен через ' + workingProxy, 'success');
                     return true;
                 }
-                throw new Error('Неверный ответ');
+                throw new Error('Неверный ответ API');
             } catch (error) {
                 statusDot.classList.remove('active');
                 statusText.textContent = 'API: Ошибка';
@@ -226,7 +255,9 @@
         }
 
         async function fetchAllTickers() {
-            const data = await fetchJSON('https://api.kucoin.com/api/v1/market/allTickers');
+            log('Загрузка allTickers...');
+            const data = await fetchWithProxy('https://api.kucoin.com/api/v1/market/allTickers', 'allTickers');
+            log(`Получено тикеров: ${data.data?.ticker?.length || 0}`);
             if (data.code === '200000' && data.data) {
                 return data.data.ticker;
             }
@@ -260,8 +291,9 @@
                 pairsContainer.innerHTML = '<div class="loading">Загрузка данных...</div>';
                 const tickers = await fetchAllTickers();
                 allTickers = filterVolatilePairs(tickers);
+                log(`Волатильных пар: ${allTickers.length}`);
 
-                if (allTickers.length === 0) throw new Error('Нет данных');
+                if (allTickers.length === 0) throw new Error('Нет волатильных пар');
 
                 updateStats(allTickers);
                 displayPairs(allTickers);
@@ -271,6 +303,7 @@
 
                 if (selectedPair) updateChart(selectedPair);
             } catch (error) {
+                log(`ОШИБКА: ${error.message}`);
                 pairsContainer.innerHTML = `
                     <div class="error-message">
                         <strong>Ошибка загрузки:</strong><br>${error.message}<br><br>
@@ -323,8 +356,9 @@
             const timeframe = document.getElementById('timeframe').value;
 
             try {
-                const data = await fetchJSON(
-                    `https://api.kucoin.com/api/v1/market/candles?symbol=${pair.symbolFull}&type=${timeframe}&limit=50`
+                const data = await fetchWithProxy(
+                    `https://api.kucoin.com/api/v1/market/candles?symbol=${pair.symbolFull}&type=${timeframe}&limit=50`,
+                    'candles'
                 );
 
                 if (data.code !== '200000' || !data.data) throw new Error('Нет данных свечей');
@@ -341,7 +375,7 @@
                 chart.data.datasets[0].label = pair.symbolName;
                 chart.update();
             } catch (error) {
-                console.error('Ошибка графика:', error);
+                log(`Ошибка графика: ${error.message}`);
             }
         }
 
