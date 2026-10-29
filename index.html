@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="description" content="WORLD FUTURE ULTIMATE SCANNER - Профессиональный инструмент для торговли фьючерсами">
     <meta name="author" content="Анатолий Григорьевич Строколенко">
     <title>🌍 WORLD FUTURE ULTIMATE SCANNER</title>
     <script src="https://cdn.jsdelivr.net/npm/lightweight-charts@4.1.0/dist/lightweight-charts.standalone.production.js"></script>
@@ -150,6 +149,18 @@
             border-radius: 8px;
             padding: 10px;
             text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+        
+        .stat-card.active {
+            border: 2px solid #00ff88;
+            background: rgba(0, 255, 136, 0.2);
         }
         
         .stat-label {
@@ -493,7 +504,7 @@
     
     <div class="header">
         <div class="logo-container">
-            <div class="logo">🌍 WORLD FUTURE ULTIMATE</div>
+            <div class="logo"> WORLD FUTURE ULTIMATE</div>
             <div class="version-badge">PRO v3.0</div>
         </div>
         
@@ -515,19 +526,19 @@
         </div>
 
         <div class="stats-grid">
-            <div class="stat-card">
+            <div class="stat-card" onclick="setFilter('long')" id="statLong">
                 <div class="stat-label">📈 LONG СИГНАЛЫ</div>
                 <div class="stat-value positive" id="buySignals">0</div>
             </div>
-            <div class="stat-card">
+            <div class="stat-card" onclick="setFilter('short')" id="statShort">
                 <div class="stat-label">📉 SHORT СИГНАЛЫ</div>
                 <div class="stat-value negative" id="sellSignals">0</div>
             </div>
-            <div class="stat-card">
+            <div class="stat-card" onclick="setFilter('fundingPositive')" id="statFundingPos">
                 <div class="stat-label"> FUNDING > 0</div>
                 <div class="stat-value negative" id="positiveFunding">0</div>
             </div>
-            <div class="stat-card">
+            <div class="stat-card" onclick="setFilter('fundingNegative')" id="statFundingNeg">
                 <div class="stat-label">💵 FUNDING < 0</div>
                 <div class="stat-value positive" id="negativeFunding">0</div>
             </div>
@@ -550,9 +561,9 @@
         </div>
 
         <div class="controls">
-            <button class="btn active" onclick="setFilter('all')">Все</button>
-            <button class="btn" onclick="setFilter('long')">📈 Long</button>
-            <button class="btn" onclick="setFilter('short')">📉 Short</button>
+            <button class="btn active" onclick="setFilter('all')" id="btnAll">Все</button>
+            <button class="btn" onclick="setFilter('long')" id="btnLong">📈 Long</button>
+            <button class="btn" onclick="setFilter('short')" id="btnShort"> Short</button>
             <button class="btn" onclick="refreshData()"> Scan</button>
         </div>
     </div>
@@ -560,7 +571,7 @@
     <div id="messageContainer"></div>
 
     <div class="coin-list" id="coinList">
-        <div class="loading">⚡ Сканирование мирового рынка фьючерсов...</div>
+        <div class="loading"> Сканирование мирового рынка фьючерсов...</div>
     </div>
 
     <div class="chart-container" id="chartContainer" style="display:none;">
@@ -641,8 +652,26 @@
 
         function setFilter(filter) {
             currentFilter = filter;
+            
+            // Убираем active со всех кнопок
             document.querySelectorAll('.btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
+            document.querySelectorAll('.stat-card').forEach(card => card.classList.remove('active'));
+            
+            // Добавляем active на нужную кнопку
+            if (filter === 'all') {
+                document.getElementById('btnAll').classList.add('active');
+            } else if (filter === 'long') {
+                document.getElementById('btnLong').classList.add('active');
+                document.getElementById('statLong').classList.add('active');
+            } else if (filter === 'short') {
+                document.getElementById('btnShort').classList.add('active');
+                document.getElementById('statShort').classList.add('active');
+            } else if (filter === 'fundingPositive') {
+                document.getElementById('statFundingPos').classList.add('active');
+            } else if (filter === 'fundingNegative') {
+                document.getElementById('statFundingNeg').classList.add('active');
+            }
+            
             filterCoins();
             renderCoinList();
         }
@@ -659,11 +688,9 @@
             try {
                 document.getElementById('coinList').innerHTML = '<div class="loading">⚡ Сканирование...</div>';
                 
-                // ПАРАЛЛЕЛЬНАЯ ЗАГРУЗКА ВСЕХ ДАННЫХ С BINANCE FUTURES
-                const [tickers, fundingRates, openInterest] = await Promise.all([
+                const [tickers, fundingRates] = await Promise.all([
                     fetch('https://fapi.binance.com/fapi/v1/ticker/24hr').then(r => r.json()),
-                    fetch('https://fapi.binance.com/fapi/v1/premiumIndex').then(r => r.json()),
-                    fetch('https://fapi.binance.com/fapi/v1/openInterest').then(r => r.json()).catch(() => [])
+                    fetch('https://fapi.binance.com/fapi/v1/premiumIndex').then(r => r.json())
                 ]);
 
                 if (!Array.isArray(tickers)) throw new Error('Invalid data');
@@ -673,7 +700,6 @@
                     fundingRates.forEach(f => fundingMap.set(f.symbol, parseFloat(f.lastFundingRate)));
                 }
 
-                // ФИЛЬТРАЦИЯ: ТОП-50 ПО ОБЪЁМУ + ДЕДУПЛИКАЦИЯ
                 const seenSymbols = new Set();
                 const topPairs = tickers
                     .filter(c => c.symbol && c.symbol.endsWith('USDT'))
@@ -686,14 +712,13 @@
                     .sort((a, b) => parseFloat(b.quoteVolume) - parseFloat(a.quoteVolume))
                     .slice(0, 50);
 
-                // ПАРАЛЛЕЛЬНЫЙ АНАЛИЗ
                 const analysisPromises = topPairs.map(coin => analyzeCoin(coin, fundingMap));
                 allCoins = await Promise.all(analysisPromises);
 
                 allCoins = allCoins.filter(c => c !== null);
                 allCoins.sort((a, b) => Math.abs(b.score) - Math.abs(a.score));
                 
-                filteredCoins = filterCoins();
+                filterCoins();
                 renderCoinList();
                 updateStats();
             } catch (error) {
@@ -738,38 +763,31 @@
                 const cvd = calculateCVD(candles);
                 const funding = fundingMap.get(symbol) || 0;
 
-                // УЛУЧШЕННЫЙ СКОРИНГ С ПРИОРИТЕТАМИ
                 let score = 0;
                 let priority = 'low';
                 
-                // RSI (вес: 3)
                 if (rsi < 25) score += 3;
                 else if (rsi < 35) score += 2;
                 else if (rsi > 75) score -= 3;
                 else if (rsi > 65) score -= 2;
                 
-                // MACD (вес: 2)
                 if (macd > 0) score += 2;
                 else score -= 2;
                 
-                // Funding Rate (вес: 4) - ВЫСОКИЙ ПРИОРИТЕТ
                 if (funding < -0.01) { score += 4; priority = 'high'; }
                 else if (funding < -0.005) { score += 3; priority = 'medium'; }
                 else if (funding > 0.01) { score -= 4; priority = 'high'; }
                 else if (funding > 0.005) { score -= 3; priority = 'medium'; }
                 
-                // CVD (вес: 3)
                 if (cvd > 0.65) score += 3;
                 else if (cvd > 0.55) score += 1;
                 else if (cvd < 0.35) score -= 3;
                 else if (cvd < 0.45) score -= 1;
                 
-                // RVOL (вес: 2)
                 if (rvol > 3) score += 2;
                 else if (rvol > 2) score += 1;
                 else if (rvol < 0.3) score -= 2;
                 
-                // Тренд 24h (вес: 2)
                 if (change24h > 20) score += 2;
                 else if (change24h > 10) score += 1;
                 else if (change24h < -20) score -= 2;
@@ -855,9 +873,22 @@
 
         function filterCoins() {
             switch(currentFilter) {
-                case 'long': return allCoins.filter(c => c.signal === 'LONG' || c.signal === 'STRONG LONG');
-                case 'short': return allCoins.filter(c => c.signal === 'SHORT' || c.signal === 'STRONG SHORT');
-                default: return allCoins;
+                case 'long': 
+                    filteredCoins = allCoins.filter(c => c.signal === 'LONG' || c.signal === 'STRONG LONG');
+                    break;
+                case 'short': 
+                    filteredCoins = allCoins.filter(c => c.signal === 'SHORT' || c.signal === 'STRONG SHORT');
+                    break;
+                case 'fundingPositive':
+                    // Показываем монеты с положительным funding (лонги платят - потенциал SHORT)
+                    filteredCoins = allCoins.filter(c => c.funding > 0.005);
+                    break;
+                case 'fundingNegative':
+                    // Показываем монеты с отрицательным funding (шорты платят - потенциал LONG)
+                    filteredCoins = allCoins.filter(c => c.funding < -0.005);
+                    break;
+                default: 
+                    filteredCoins = allCoins;
             }
         }
 
@@ -944,7 +975,7 @@
                 </div>
             `}).join('');
             
-            container.innerHTML = coinsHTML || '<div class="loading">Нет данных</div>';
+            container.innerHTML = coinsHTML || '<div class="loading">Нет данных для выбранного фильтра</div>';
         }
 
         function selectCoin(symbol) {
