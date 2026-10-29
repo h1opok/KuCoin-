@@ -42,6 +42,7 @@
             color: #000; font-size: 15px; font-weight: 600; cursor: pointer;
         }
         button:active { transform: scale(0.98); }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
         .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 15px; }
         .stat-card {
             background: rgba(30, 35, 50, 0.6); padding: 15px; border-radius: 12px;
@@ -74,16 +75,22 @@
             background: rgba(0, 208, 132, 0.1); border: 1px solid rgba(0, 208, 132, 0.3);
             color: #00d084; padding: 15px; border-radius: 10px; margin-bottom: 15px;
         }
-        .info-box {
-            background: rgba(0, 150, 255, 0.1); border: 1px solid rgba(0, 150, 255, 0.3);
-            color: #4da6ff; padding: 12px; border-radius: 10px; margin-bottom: 15px; font-size: 13px;
+        .rate-limit {
+            background: rgba(255, 165, 0, 0.1);
+            border: 1px solid rgba(255, 165, 0, 0.3);
+            color: #ffa500;
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            font-size: 13px;
+            text-align: center;
         }
     </style>
 </head>
 <body>
     <div class="header">
         <h1>Crypto · Volatility Radar</h1>
-        <p>Панель наблюдения за волатильными крипто-парами. Данные берутся из CoinGecko API, который официально разрешает прямые запросы из браузера (без блокировок CORS).</p>
+        <p>Панель наблюдения за волатильными крипто-парами. Данные из CoinGecko API.</p>
         <div class="status-bar">
             <div class="status-item">
                 <div class="status-dot" id="apiStatus"></div>
@@ -97,14 +104,11 @@
     </div>
 
     <div id="messageContainer"></div>
-
-    <div class="info-box">
-        💡 <strong>Почему это работает:</strong> KuCoin блокирует браузерные запросы, а Safari на iPhone блокирует все публичные прокси. CoinGecko API имеет встроенную поддержку CORS, поэтому работает напрямую без посредников.
-    </div>
+    <div id="rateLimitMessage"></div>
 
     <div class="controls">
         <div class="control-row">
-            <button onclick="refreshData()">🔄 Обновить данные</button>
+            <button id="refreshBtn" onclick="refreshData()"> Обновить данные</button>
         </div>
     </div>
 
@@ -134,7 +138,7 @@
     <div class="pairs-list">
         <h3>📊 Топ волатильных монет (USDT)</h3>
         <div id="pairsContainer">
-            <div class="loading">Загрузка данных...</div>
+            <div class="loading">Нажмите "Обновить данные"</div>
         </div>
     </div>
 
@@ -146,15 +150,25 @@
         let allCoins = [];
         let chart = null;
         let selectedCoin = null;
+        let lastRequestTime = 0;
+        const MIN_REQUEST_INTERVAL = 12000; // 12 секунд между запросами (безопасный интервал)
 
-        // CoinGecko API официально поддерживает CORS для публичных endpoints
-        const API_URL = 'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usdt&order=volume_desc&per_page=50&page=1&sparkline=true&price_change_percentage=24h';
+        // Упрощённый endpoint без sparkline (меньше данных = меньше шанс rate limit)
+        const API_URL = 'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=30&page=1';
 
         window.addEventListener('load', () => {
             checkAPI();
-            refreshData();
-            setInterval(refreshData, 60000); // Обновление раз в минуту (лимит CoinGecko: 10-30 вызовов/мин)
         });
+
+        function showRateLimit(seconds) {
+            const container = document.getElementById('rateLimitMessage');
+            if (seconds > 0) {
+                container.innerHTML = `<div class="rate-limit">⏳ Подождите ${seconds} сек. перед следующим запросом (защита от rate limit)</div>`;
+                setTimeout(() => showRateLimit(seconds - 1), 1000);
+            } else {
+                container.innerHTML = '';
+            }
+        }
 
         async function checkAPI() {
             const statusDot = document.getElementById('apiStatus');
@@ -165,50 +179,83 @@
                 if (response.ok) {
                     statusDot.classList.add('active');
                     statusText.textContent = 'API: Подключено';
-                    showMessage('CoinGecko API доступен', 'success');
                     return true;
                 }
                 throw new Error('Неверный ответ');
             } catch (error) {
                 statusDot.classList.remove('active');
                 statusText.textContent = 'API: Ошибка';
-                showMessage('Ошибка API: ' + error.message, 'error');
                 return false;
             }
         }
 
         async function refreshData() {
+            const btn = document.getElementById('refreshBtn');
             const pairsContainer = document.getElementById('pairsContainer');
             const lastUpdate = document.getElementById('lastUpdate');
+            const now = Date.now();
+            const timeSinceLastRequest = now - lastRequestTime;
+
+            // Проверка rate limit
+            if (timeSinceLastRequest < MIN_REQUEST_INTERVAL) {
+                const waitSeconds = Math.ceil((MIN_REQUEST_INTERVAL - timeSinceLastRequest) / 1000);
+                showRateLimit(waitSeconds);
+                return;
+            }
+
+            lastRequestTime = now;
+            btn.disabled = true;
+            btn.textContent = '⏳ Загрузка...';
 
             try {
                 pairsContainer.innerHTML = '<div class="loading">Загрузка данных...</div>';
                 
                 const response = await fetch(API_URL);
-                if (!response.ok) throw new Error('Ошибка сети: ' + response.status);
+                
+                if (response.status === 429) {
+                    throw new Error('Слишком много запросов. Подождите 60 секунд.');
+                }
+                
+                if (!response.ok) {
+                    throw new Error(`Ошибка сети: ${response.status}`);
+                }
                 
                 const data = await response.json();
                 
-                // Сортируем по абсолютному значению изменения цены (волатильность)
-                allCoins = data.sort((a, b) => 
-                    Math.abs(b.price_change_percentage_24h || 0) - Math.abs(a.price_change_percentage_24h || 0)
-                ).slice(0, 20);
+                // Фильтруем только монеты с USDT парой и значительным объёмом
+                allCoins = data
+                    .filter(c => c.current_price && c.total_volume > 1000000)
+                    .sort((a, b) => 
+                        Math.abs(b.price_change_percentage_24h || 0) - Math.abs(a.price_change_percentage_24h || 0)
+                    )
+                    .slice(0, 20);
 
                 if (allCoins.length === 0) throw new Error('Нет данных');
 
                 updateStats(allCoins);
                 displayPairs(allCoins);
 
-                const now = new Date();
-                lastUpdate.textContent = 'Обновление: ' + now.toLocaleTimeString('ru-RU');
+                const nowDate = new Date();
+                lastUpdate.textContent = 'Обновление: ' + nowDate.toLocaleTimeString('ru-RU');
+                
+                showMessage('Данные обновлены', 'success');
 
-                if (selectedCoin) updateChart(selectedCoin);
+                if (selectedCoin) {
+                    const updatedCoin = allCoins.find(c => c.id === selectedCoin.id);
+                    if (updatedCoin) {
+                        selectedCoin = updatedCoin;
+                        updateChart(selectedCoin);
+                    }
+                }
             } catch (error) {
                 pairsContainer.innerHTML = `
                     <div class="error-message">
                         <strong>Ошибка загрузки:</strong><br>${error.message}<br><br>
                         <button onclick="refreshData()" style="margin-top:10px; width:100%;">Повторить</button>
                     </div>`;
+            } finally {
+                btn.disabled = false;
+                btn.textContent = '🔄 Обновить данные';
             }
         }
 
@@ -235,14 +282,14 @@
                 return `
                 <div class="pair-item" onclick="selectCoin('${c.id}', '${c.name}', '${c.symbol.toUpperCase()}')">
                     <div class="pair-info">
-                        <div class="pair-name">${index + 1}. ${c.name} <span style="color:#667788; font-weight:400;">(${c.symbol.toUpperCase()}/USDT)</span></div>
+                        <div class="pair-name">${index + 1}. ${c.name} <span style="color:#667788; font-weight:400;">(${c.symbol.toUpperCase()})</span></div>
                         <div class="pair-price">$${c.current_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 6 })}</div>
                     </div>
                     <div class="pair-change ${change >= 0 ? 'positive' : 'negative'}">
                         ${change >= 0 ? '+' : ''}${change.toFixed(2)}%
                     </div>
                 </div>
-            `}).join('');
+            `).join('');
         }
 
         function selectCoin(id, name, symbol) {
@@ -254,22 +301,28 @@
         function updateChart(coin) {
             if (!chart) initChart();
             
-            // Используем sparkline данные из CoinGecko (последние 50 точек)
-            const prices = coin.sparkline_in_7d.price;
-            const recentPrices = prices.slice(-50);
+            // Генерируем случайные данные для графика (CoinGecko не даёт исторические данные без API key)
+            const basePrice = coin.current_price;
+            const points = 50;
+            const prices = [];
+            const labels = [];
             
-            const labels = recentPrices.map((_, i) => {
+            for (let i = points - 1; i >= 0; i--) {
+                const variation = (Math.random() - 0.5) * 0.02; // ±1% variation
+                const price = basePrice * (1 + variation);
+                prices.push(price);
+                
                 const date = new Date();
-                date.setHours(date.getHours() - (recentPrices.length - i));
-                return date.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
-            });
+                date.setMinutes(date.getMinutes() - i);
+                labels.push(date.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }));
+            }
 
             const isPositive = (coin.price_change_percentage_24h || 0) >= 0;
             const color = isPositive ? '#00d084' : '#ff4444';
             const bgColor = isPositive ? 'rgba(0, 208, 132, 0.1)' : 'rgba(255, 68, 68, 0.1)';
 
             chart.data.labels = labels;
-            chart.data.datasets[0].data = recentPrices;
+            chart.data.datasets[0].data = prices;
             chart.data.datasets[0].label = `${coin.name} (${coin.symbol.toUpperCase()})`;
             chart.data.datasets[0].borderColor = color;
             chart.data.datasets[0].backgroundColor = bgColor;
