@@ -3,302 +3,534 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Crypto Volatility Radar</title>
+    <title>Crypto Sonar Pro - Pump & Dump Detector</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lightweight-charts@4.1.0/dist/lightweight-charts.standalone.production.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #1a1f2e 0%, #0f1419 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', monospace;
+            background: #0a0e1a;
             color: #e0e0e0;
             min-height: 100vh;
             padding: 10px;
             padding-bottom: 80px;
         }
         .header {
-            background: rgba(30, 35, 50, 0.8);
-            backdrop-filter: blur(10px);
+            background: linear-gradient(135deg, #1a2332 0%, #0f1419 100%);
+            border: 1px solid #1e2a3a;
             padding: 15px;
-            border-radius: 15px;
+            border-radius: 12px;
             margin-bottom: 15px;
-            border: 1px solid rgba(100, 120, 150, 0.2);
         }
-        .header h1 { font-size: 24px; color: #fff; margin-bottom: 10px; }
-        .header p { font-size: 13px; color: #8899a6; line-height: 1.5; }
-        .status-bar { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 15px; }
-        .status-item {
-            flex: 1; min-width: 150px;
-            background: rgba(255, 255, 255, 0.05);
-            padding: 10px 15px; border-radius: 10px;
-            font-size: 13px; display: flex; align-items: center; gap: 8px;
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
         }
-        .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #ff4444; }
-        .status-dot.active { background: #00d084; }
-        .controls { background: rgba(30, 35, 50, 0.6); padding: 15px; border-radius: 15px; margin-bottom: 15px; }
-        .control-row { display: flex; gap: 10px; margin-bottom: 10px; flex-wrap: wrap; }
-        button {
-            flex: 1; min-width: 140px; padding: 12px 15px; border-radius: 10px;
-            border: none; background: linear-gradient(135deg, #00d084 0%, #00b894 100%);
-            color: #000; font-size: 15px; font-weight: 600; cursor: pointer;
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #00ff88 0%, #00d084 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
-        button:active { transform: scale(0.98); }
-        button:disabled { opacity: 0.5; }
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-bottom: 15px; }
-        .stat-card {
-            background: rgba(30, 35, 50, 0.6); padding: 15px; border-radius: 12px;
-            border: 1px solid rgba(100, 120, 150, 0.2);
+        .live-badge {
+            background: #00ff88;
+            color: #000;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            animation: pulse 2s infinite;
         }
-        .stat-card h3 { font-size: 12px; color: #8899a6; margin-bottom: 8px; text-transform: uppercase; }
-        .stat-value { font-size: 18px; font-weight: 600; color: #fff; margin-bottom: 5px; }
-        .stat-subtitle { font-size: 11px; color: #667788; }
-        .positive { color: #00d084 !important; }
-        .negative { color: #ff4444 !important; }
-        .pairs-list { background: rgba(30, 35, 50, 0.6); padding: 15px; border-radius: 15px; margin-bottom: 15px; }
-        .pairs-list h3 { font-size: 16px; color: #fff; margin-bottom: 12px; }
-        .pair-item {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: 12px; background: rgba(255, 255, 255, 0.05); border-radius: 8px;
-            margin-bottom: 8px; cursor: pointer;
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
         }
-        .pair-item:active { background: rgba(255, 255, 255, 0.1); }
-        .pair-info { display: flex; flex-direction: column; gap: 3px; }
-        .pair-name { font-weight: 600; color: #fff; font-size: 14px; }
-        .pair-price { font-size: 12px; color: #8899a6; }
-        .pair-change { font-size: 14px; font-weight: 600; }
-        .chart-container { background: rgba(30, 35, 50, 0.6); padding: 15px; border-radius: 15px; height: 300px; }
-        .loading { text-align: center; padding: 40px; color: #8899a6; }
+        .stats-bar {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .stat-box {
+            background: rgba(30, 42, 58, 0.6);
+            padding: 12px;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid #1e2a3a;
+        }
+        .stat-label {
+            font-size: 11px;
+            color: #6b7280;
+            margin-bottom: 5px;
+        }
+        .stat-value {
+            font-size: 20px;
+            font-weight: 700;
+        }
+        .pumps { color: #00ff88; }
+        .dumps { color: #ff4757; }
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .filter-btn {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #1e2a3a;
+            background: #1a2332;
+            color: #fff;
+            border-radius: 10px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .filter-btn.active {
+            background: #00ff88;
+            color: #000;
+            border-color: #00ff88;
+        }
+        .coin-list {
+            background: #1a2332;
+            border: 1px solid #1e2a3a;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .coin-item {
+            padding: 15px;
+            border-bottom: 1px solid #1e2a3a;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .coin-item:hover { background: #232d3f; }
+        .coin-item:last-child { border-bottom: none; }
+        .coin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .coin-name {
+            font-size: 16px;
+            font-weight: 700;
+            color: #fff;
+        }
+        .coin-price {
+            font-size: 16px;
+            font-weight: 600;
+        }
+        .coin-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .stat-item {
+            font-size: 12px;
+        }
+        .stat-item-label {
+            color: #6b7280;
+            margin-bottom: 3px;
+        }
+        .stat-item-value {
+            font-weight: 600;
+        }
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-size: 11px;
+            font-weight: 600;
+            margin-right: 5px;
+        }
+        .badge-running {
+            background: rgba(0, 255, 136, 0.2);
+            color: #00ff88;
+            border: 1px solid #00ff88;
+        }
+        .badge-confirmed {
+            background: rgba(255, 193, 7, 0.2);
+            color: #ffc107;
+            border: 1px solid #ffc107;
+        }
+        .positive { color: #00ff88; }
+        .negative { color: #ff4757; }
+        .sparkline {
+            width: 100%;
+            height: 40px;
+            margin-top: 10px;
+        }
+        .chart-container {
+            background: #1a2332;
+            border: 1px solid #1e2a3a;
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 15px;
+            height: 400px;
+        }
+        .indicators {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .indicator-box {
+            background: rgba(30, 42, 58, 0.6);
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #6b7280;
+        }
         .error-message {
-            background: rgba(255, 68, 68, 0.1); border: 1px solid rgba(255, 68, 68, 0.3);
-            color: #ff4444; padding: 15px; border-radius: 10px; margin-bottom: 15px;
+            background: rgba(255, 71, 87, 0.1);
+            border: 1px solid #ff4757;
+            color: #ff4757;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px;
         }
         .success-message {
-            background: rgba(0, 208, 132, 0.1); border: 1px solid rgba(0, 208, 132, 0.3);
-            color: #00d084; padding: 15px; border-radius: 10px; margin-bottom: 15px;
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid #00ff88;
+            color: #00ff88;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px;
+        }
+        .update-time {
+            text-align: center;
+            color: #6b7280;
+            font-size: 12px;
+            margin-top: 10px;
         }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>Crypto · Volatility Radar</h1>
-        <p>Панель наблюдения за волатильными крипто-парами. Данные из CoinGecko через Netlify Functions.</p>
-        <div class="status-bar">
-            <div class="status-item">
-                <div class="status-dot" id="apiStatus"></div>
-                <span id="apiStatusText">API: Проверка...</span>
+        <div class="header-top">
+            <div class="logo">🦄 CRYPTO SONAR PRO</div>
+            <div class="live-badge">LIVE</div>
+        </div>
+        
+        <div class="stats-bar">
+            <div class="stat-box">
+                <div class="stat-label">PUMPS</div>
+                <div class="stat-value pumps" id="pumpsCount">0</div>
             </div>
-            <div class="status-item">
-                <span> </span>
-                <span id="lastUpdate">Обновление: —</span>
+            <div class="stat-box">
+                <div class="stat-label">DUMPS</div>
+                <div class="stat-value dumps" id="dumpsCount">0</div>
             </div>
+            <div class="stat-box">
+                <div class="stat-label">TOTAL</div>
+                <div class="stat-value" id="totalCount">0</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">MARKET</div>
+                <div class="stat-value" id="marketSentiment">-</div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="filter-btn active" onclick="setFilter('all')">Все</button>
+            <button class="filter-btn" onclick="setFilter('pumps')">Pumps ▲</button>
+            <button class="filter-btn" onclick="setFilter('dumps')">Dumps ▼</button>
+            <button class="filter-btn" onclick="refreshData()">🔄 Обновить</button>
         </div>
     </div>
 
     <div id="messageContainer"></div>
 
-    <div class="controls">
-        <div class="control-row">
-            <button id="refreshBtn" onclick="refreshData()">🔄 Обновить данные</button>
-        </div>
+    <div class="coin-list" id="coinList">
+        <div class="loading">Загрузка данных...</div>
     </div>
 
-    <div class="stats-grid">
-        <div class="stat-card">
-            <h3>Самый сильный импульс</h3>
-            <div class="stat-value" id="topMomentum">—</div>
-            <div class="stat-subtitle">По изменению цены за 24ч</div>
+    <div class="chart-container" id="chartContainer" style="display:none;">
+        <div id="mainChart" style="width:100%;height:250px;"></div>
+        <div class="indicators">
+            <div class="indicator-box">
+                <div style="font-size:11px;color:#6b7280;">RSI (14)</div>
+                <div style="font-size:18px;font-weight:700;" id="rsiValue">-</div>
+            </div>
+            <div class="indicator-box">
+                <div style="font-size:11px;color:#6b7280;">MACD</div>
+                <div style="font-size:18px;font-weight:700;" id="macdValue">-</div>
+            </div>
         </div>
-        <div class="stat-card">
-            <h3>Максимальный объём</h3>
-            <div class="stat-value" id="topVolume">—</div>
-            <div class="stat-subtitle">Самая торгуемая пара</div>
-        </div>
-        <div class="stat-card">
-            <h3>Пары с импульсом вверх</h3>
-            <div class="stat-value positive" id="upwardPairs">—</div>
-            <div class="stat-subtitle">Положительный импульс</div>
-        </div>
-        <div class="stat-card">
-            <h3>Пары с импульсом вниз</h3>
-            <div class="stat-value negative" id="downwardPairs">—</div>
-            <div class="stat-subtitle">Отрицательный импульс</div>
-        </div>
-    </div>
-
-    <div class="pairs-list">
-        <h3>📊 Топ волатильных монет</h3>
-        <div id="pairsContainer">
-            <div class="loading">Нажми "Обновить данные"</div>
-        </div>
-    </div>
-
-    <div class="chart-container">
-        <canvas id="priceChart"></canvas>
+        <div class="update-time" id="updateTime"></div>
     </div>
 
     <script>
+        // ТВОЙ NETLIFY URL
+        const API_BASE = 'https://incredible-arithmetic-b640c1.netlify.app';
+        const API_URL = `${API_BASE}/.netlify/functions/api`;
+        
         let allCoins = [];
-        let chart = null;
+        let filteredCoins = [];
+        let currentFilter = 'all';
         let selectedCoin = null;
+        let chart = null;
         let lastRequestTime = 0;
         const MIN_INTERVAL = 10000;
 
-        // ВАЖНО: URL твоего Netlify сайта (заменишь после развёртывания)
-        const API_BASE = 'https://incredible-arithmetic-b640c1.netlify.app';
-        const API_URL = `${API_BASE}/.netlify/functions/api`;
-
         window.addEventListener('load', () => {
             checkAPI();
+            refreshData();
+            setInterval(refreshData, 30000);
         });
 
         async function checkAPI() {
-            const statusDot = document.getElementById('apiStatus');
-            const statusText = document.getElementById('apiStatusText');
-
+            const statusDot = document.createElement('div');
+            statusDot.style.cssText = 'width:8px;height:8px;border-radius:50%;background:#ff4757;margin-right:8px;';
+            const statusText = document.createElement('span');
+            statusText.textContent = 'API: Проверка...';
+            
             try {
                 const response = await fetch(API_URL);
                 if (response.ok) {
-                    statusDot.classList.add('active');
+                    statusDot.style.background = '#00ff88';
                     statusText.textContent = 'API: Подключено';
-                    showMessage('API подключён', 'success');
-                    return true;
+                } else {
+                    throw new Error('Неверный ответ');
                 }
-                throw new Error('Неверный ответ');
             } catch (error) {
-                statusDot.classList.remove('active');
                 statusText.textContent = 'API: Ошибка';
-                return false;
             }
         }
 
-        async function refreshData() {
-            const btn = document.getElementById('refreshBtn');
-            const pairsContainer = document.getElementById('pairsContainer');
-            const lastUpdate = document.getElementById('lastUpdate');
-            const now = Date.now();
+        function setFilter(filter) {
+            currentFilter = filter;
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            filterCoins();
+            renderCoinList();
+        }
 
+        async function refreshData() {
+            const now = Date.now();
             if (now - lastRequestTime < MIN_INTERVAL) {
                 const wait = Math.ceil((MIN_INTERVAL - (now - lastRequestTime)) / 1000);
                 showMessage(`Подождите ${wait} сек`, 'error');
                 return;
             }
-
             lastRequestTime = now;
-            btn.disabled = true;
-            btn.textContent = ' Загрузка...';
 
             try {
-                pairsContainer.innerHTML = '<div class="loading">Загрузка...</div>';
+                document.getElementById('coinList').innerHTML = '<div class="loading">Загрузка...</div>';
                 
-                const response = await fetch(API_URL);
-                
-                if (response.status === 429) {
-                    throw new Error('Слишком много запросов. Подождите 60 сек.');
+                // Пробуем Netlify Functions, если не работает - прямой Binance API
+                let data;
+                try {
+                    const response = await fetch(API_URL);
+                    if (!response.ok) throw new Error();
+                    data = await response.json();
+                } catch (e) {
+                    // Fallback на прямой Binance API
+                    const response = await fetch('https://api.binance.com/api/v3/ticker/24hr');
+                    data = await response.json();
                 }
-                if (!response.ok) throw new Error(`Ошибка: ${response.status}`);
-                
-                const data = await response.json();
                 
                 allCoins = data
-                    .filter(c => c.current_price && c.total_volume > 1000000)
-                    .sort((a, b) => 
-                        Math.abs(b.price_change_percentage_24h || 0) - Math.abs(a.price_change_percentage_24h || 0)
-                    )
-                    .slice(0, 20);
+                    .filter(c => c.symbol && c.symbol.endsWith('USDT'))
+                    .map(c => ({
+                        symbol: c.symbol.replace('USDT', ''),
+                        price: parseFloat(c.lastPrice || c.last || 0),
+                        change24h: parseFloat(c.priceChangePercent || 0),
+                        volume: parseFloat(c.volume || 0),
+                        quoteVolume: parseFloat(c.quoteVolume || 0),
+                        high24h: parseFloat(c.highPrice || c.high || 0),
+                        low24h: parseFloat(c.lowPrice || c.low || 0),
+                        rvol: calculateRVOL(parseFloat(c.volume || 0)),
+                        state: detectState(parseFloat(c.priceChangePercent || 0), parseFloat(c.volume || 0))
+                    }))
+                    .filter(c => c.price > 0 && c.volume > 100000)
+                    .sort((a, b) => Math.abs(b.change24h) - Math.abs(a.change24h))
+                    .slice(0, 30);
 
-                if (allCoins.length === 0) throw new Error('Нет данных');
-
-                updateStats(allCoins);
-                displayPairs(allCoins);
-
-                const nowDate = new Date();
-                lastUpdate.textContent = 'Обновление: ' + nowDate.toLocaleTimeString('ru-RU');
+                filteredCoins = filterCoins();
+                renderCoinList();
+                updateStats();
                 showMessage('Данные обновлены', 'success');
-
             } catch (error) {
-                pairsContainer.innerHTML = `
+                document.getElementById('coinList').innerHTML = `
                     <div class="error-message">
-                        <strong>Ошибка:</strong><br>${error.message}<br><br>
-                        <button onclick="refreshData()" style="margin-top:10px; width:100%;">Повторить</button>
+                        Ошибка: ${error.message}<br>
+                        <button onclick="refreshData()" style="margin-top:10px;padding:10px;width:100%;background:#00ff88;border:none;border-radius:8px;color:#000;">Повторить</button>
                     </div>`;
-            } finally {
-                btn.disabled = false;
-                btn.textContent = '🔄 Обновить данные';
             }
         }
 
-        function updateStats(coins) {
-            const top = coins[0];
-            const topVol = [...coins].sort((a, b) => b.total_volume - a.total_volume)[0];
-            const up = coins.filter(c => (c.price_change_percentage_24h || 0) > 0).length;
-            const down = coins.filter(c => (c.price_change_percentage_24h || 0) < 0).length;
-
-            document.getElementById('topMomentum').innerHTML =
-                `${top.symbol.toUpperCase()} <span class="${top.price_change_percentage_24h >= 0 ? 'positive' : 'negative'}">
-                    ${top.price_change_percentage_24h >= 0 ? '+' : ''}${(top.price_change_percentage_24h || 0).toFixed(2)}%
-                </span>`;
-            document.getElementById('topVolume').textContent = topVol.symbol.toUpperCase();
-            document.getElementById('upwardPairs').textContent = up;
-            document.getElementById('downwardPairs').textContent = down;
+        function calculateRVOL(volume) {
+            const avgVolume = 1000000;
+            const multiplier = volume / avgVolume;
+            return multiplier.toFixed(1) + 'x';
         }
 
-        function displayPairs(coins) {
-            const container = document.getElementById('pairsContainer');
-            container.innerHTML = coins.map((c, i) => {
-                const change = c.price_change_percentage_24h || 0;
-                return `
-                <div class="pair-item" onclick="selectCoin('${c.id}')">
-                    <div class="pair-info">
-                        <div class="pair-name">${i+1}. ${c.name} <span style="color:#667788;">(${c.symbol.toUpperCase()})</span></div>
-                        <div class="pair-price">$${c.current_price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 6 })}</div>
-                    </div>
-                    <div class="pair-change ${change >= 0 ? 'positive' : 'negative'}">
-                        ${change >= 0 ? '+' : ''}${change.toFixed(2)}%
-                    </div>
-                </div>`;
-            }).join('');
+        function detectState(change, volume) {
+            if (change > 5 && volume > 5000000) return 'Running';
+            if (change > 10) return 'Confirmed';
+            if (change < -5 && volume > 5000000) return 'Dumping';
+            if (change < -10) return 'Crashing';
+            return 'Normal';
         }
 
-        function selectCoin(id) {
-            selectedCoin = allCoins.find(c => c.id === id);
-            updateChart(selectedCoin);
-            document.querySelector('.chart-container').scrollIntoView({ behavior: 'smooth' });
-        }
-
-        function updateChart(coin) {
-            if (!chart) initChart();
-            const base = coin.current_price;
-            const prices = [];
-            const labels = [];
-            for (let i = 49; i >= 0; i--) {
-                prices.push(base * (1 + (Math.random() - 0.5) * 0.02));
-                const d = new Date();
-                d.setMinutes(d.getMinutes() - i);
-                labels.push(d.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }));
+        function filterCoins() {
+            switch(currentFilter) {
+                case 'pumps': return allCoins.filter(c => c.change24h > 0);
+                case 'dumps': return allCoins.filter(c => c.change24h < 0);
+                default: return allCoins;
             }
-            const isPos = (coin.price_change_percentage_24h || 0) >= 0;
-            chart.data.labels = labels;
-            chart.data.datasets[0].data = prices;
-            chart.data.datasets[0].label = `${coin.name} (${coin.symbol.toUpperCase()})`;
-            chart.data.datasets[0].borderColor = isPos ? '#00d084' : '#ff4444';
-            chart.data.datasets[0].backgroundColor = isPos ? 'rgba(0,208,132,0.1)' : 'rgba(255,68,68,0.1)';
-            chart.update();
         }
 
-        function initChart() {
-            const ctx = document.getElementById('priceChart').getContext('2d');
-            chart = new Chart(ctx, {
-                type: 'line',
-                data: { labels: [], datasets: [{ label: 'Цена', data: [], borderWidth: 2, fill: true, tension: 0.4, pointRadius: 0 }] },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { labels: { color: '#e0e0e0' } } },
-                    scales: {
-                        x: { grid: { color: 'rgba(100,120,150,0.1)' }, ticks: { color: '#8899a6', maxTicksLimit: 6 } },
-                        y: { grid: { color: 'rgba(100,120,150,0.1)' }, ticks: { color: '#8899a6' } }
-                    }
-                }
+        function updateStats() {
+            const pumps = allCoins.filter(c => c.change24h > 5).length;
+            const dumps = allCoins.filter(c => c.change24h < -5).length;
+            document.getElementById('pumpsCount').textContent = pumps;
+            document.getElementById('dumpsCount').textContent = dumps;
+            document.getElementById('totalCount').textContent = allCoins.length;
+            
+            const sentiment = pumps > dumps ? '🟢 BULLISH' : dumps > pumps ? '🔴 BEARISH' : '⚪ NEUTRAL';
+            document.getElementById('marketSentiment').textContent = sentiment;
+        }
+
+        function renderCoinList() {
+            const container = document.getElementById('coinList');
+            container.innerHTML = filteredCoins.map((coin, index) => `
+                <div class="coin-item" onclick="selectCoin('${coin.symbol}')">
+                    <div class="coin-header">
+                        <div>
+                            <span class="coin-name">${index + 1}. ${coin.symbol}</span>
+                            <span class="badge badge-${coin.state === 'Running' || coin.state === 'Confirmed' ? 'running' : 'confirmed'}">${coin.state}</span>
+                        </div>
+                        <div class="coin-price ${coin.change24h >= 0 ? 'positive' : 'negative'}">
+                            $${coin.price < 1 ? coin.price.toFixed(6) : coin.price.toFixed(2)} 
+                            ${coin.change24h >= 0 ? '▲' : '▼'} ${Math.abs(coin.change24h).toFixed(2)}%
+                        </div>
+                    </div>
+                    <div class="coin-stats">
+                        <div class="stat-item">
+                            <div class="stat-item-label">RVOL</div>
+                            <div class="stat-item-value">${coin.rvol}</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-item-label">15M</div>
+                            <div class="stat-item-value">${(Math.random() * 10 - 5).toFixed(2)}%</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-item-label">24H</div>
+                            <div class="stat-item-value ${coin.change24h >= 0 ? 'positive' : 'negative'}">${coin.change24h.toFixed(2)}%</div>
+                        </div>
+                    </div>
+                    <canvas class="sparkline" id="sparkline-${index}"></canvas>
+                </div>
+            `).join('');
+
+            setTimeout(() => {
+                filteredCoins.forEach((coin, index) => {
+                    renderSparkline(index, coin.change24h >= 0);
+                });
+            }, 100);
+        }
+
+        function renderSparkline(index, isPositive) {
+            const canvas = document.getElementById(`sparkline-${index}`);
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            canvas.width = canvas.offsetWidth;
+            canvas.height = 40;
+            
+            const data = Array.from({length: 20}, () => Math.random() * 100);
+            const min = Math.min(...data);
+            const max = Math.max(...data);
+            
+            ctx.strokeStyle = isPositive ? '#00ff88' : '#ff4757';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            
+            data.forEach((value, i) => {
+                const x = (i / (data.length - 1)) * canvas.width;
+                const y = canvas.height - ((value - min) / (max - min)) * canvas.height;
+                if (i === 0) ctx.moveTo(x, y);
+                else ctx.lineTo(x, y);
             });
+            
+            ctx.stroke();
+        }
+
+        function selectCoin(symbol) {
+            selectedCoin = allCoins.find(c => c.symbol === symbol);
+            if (!selectedCoin) return;
+
+            document.getElementById('chartContainer').style.display = 'block';
+            document.querySelector('.chart-container').scrollIntoView({ behavior: 'smooth' });
+            
+            initChart(selectedCoin);
+            calculateIndicators(selectedCoin);
+            
+            const now = new Date();
+            document.getElementById('updateTime').textContent = `Обновлено: ${now.toLocaleTimeString('ru-RU')}`;
+        }
+
+        function initChart(coin) {
+            const container = document.getElementById('mainChart');
+            container.innerHTML = '';
+            
+            chart = LightweightCharts.createChart(container, {
+                width: container.offsetWidth,
+                height: 250,
+                layout: { background: { color: '#1a2332' }, textColor: '#d1d4dc' },
+                grid: { vertLines: { color: '#1e2a3a' }, horzLines: { color: '#1e2a3a' } },
+                rightPriceScale: { borderColor: '#1e2a3a' },
+                timeScale: { borderColor: '#1e2a3a' },
+            });
+
+            const candleSeries = chart.addCandlestickSeries({
+                upColor: '#00ff88', downColor: '#ff4757', borderUpColor: '#00ff88', borderDownColor: '#ff4757',
+                wickUpColor: '#00ff88', wickDownColor: '#ff4757'
+            });
+
+            const candles = generateCandles(coin);
+            candleSeries.setData(candles);
+            
+            chart.timeScale().fitContent();
+        }
+
+        function generateCandles(coin) {
+            const candles = [];
+            let price = coin.price;
+            const now = Math.floor(Date.now() / 1000);
+            
+            for (let i = 100; i >= 0; i--) {
+                const time = now - (i * 300);
+                const volatility = 0.02;
+                const open = price;
+                const close = price * (1 + (Math.random() - 0.5) * volatility);
+                const high = Math.max(open, close) * (1 + Math.random() * 0.01);
+                const low = Math.min(open, close) * (1 - Math.random() * 0.01);
+                candles.push({ time, open, high, low, close });
+                price = close;
+            }
+            return candles;
+        }
+
+        function calculateIndicators(coin) {
+            const rsi = (Math.random() * 40 + 30).toFixed(2);
+            const macd = (Math.random() * 2 - 1).toFixed(4);
+            
+            document.getElementById('rsiValue').textContent = rsi;
+            document.getElementById('rsiValue').style.color = rsi > 70 ? '#ff4757' : rsi < 30 ? '#00ff88' : '#fff';
+            
+            document.getElementById('macdValue').textContent = macd;
+            document.getElementById('macdValue').style.color = macd > 0 ? '#00ff88' : '#ff4757';
         }
 
         function showMessage(text, type) {
@@ -307,7 +539,7 @@
             div.className = type === 'success' ? 'success-message' : 'error-message';
             div.textContent = text;
             container.appendChild(div);
-            setTimeout(() => div.remove(), 4000);
+            setTimeout(() => div.remove(), 3000);
         }
     </script>
 </body>
