@@ -163,7 +163,7 @@
         .copy-notification.show { display: block; animation: fadeInOut 2s ease-in-out; }
         @keyframes fadeInOut { 0% { opacity: 0; transform: translate(-50%, -50%) scale(0.9); } 20% { opacity: 1; transform: translate(-50%, -50%) scale(1); } 80% { opacity: 1; transform: translate(-50%, -50%) scale(1); } 100% { opacity: 0; transform: translate(-50%, -50%) scale(0.9); } }
 
-        /* 📱 MOBILE & ACCESSIBILITY FIX: Отключаем тяжелый blur и анимации для слабых устройств и a11y */
+        /* 📱 MOBILE & ACCESSIBILITY FIX */
         @media (max-width: 768px), (prefers-reduced-motion: reduce), (prefers-contrast: more) {
             .logo-container, .header, .coin-list, .chart-container, .orderbook-panel, .footer {
                 backdrop-filter: none !important;
@@ -186,7 +186,6 @@
     </div>
     
     <div class="logo-container">
-        <!-- ЖИВОЙ АНИМИРОВАННЫЙ ЛОГОТИП BITCOIN -->
         <svg class="logo-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
             <circle cx="50" cy="50" r="48" fill="none" stroke="#ffd700" stroke-width="1.5" stroke-dasharray="4 4" opacity="0.6">
                 <animateTransform attributeName="transform" type="rotate" from="0 50 50" to="360 50 50" dur="12s" repeatCount="indefinite"/>
@@ -368,7 +367,6 @@
     </div>
 
     <script>
-        // Canvas не понимает CSS-переменные, используем литералы
         const COLORS = {
             green: '#00ff88',
             red: '#ff4757',
@@ -404,7 +402,7 @@
         let allCoins = [], filteredCoins = [], currentFilter = 'all', currentTimeframe = '5m', selectedCoin = null, chart = null, lastScanTime = 0, wsConnection = null;
         let resizeTimer;
         let lastRender = 0;
-        let isRefreshing = false; // 🛡️ ЗАЩИТА ОТ СПАМА API
+        let isRefreshing = false; 
 
         window.addEventListener('load', () => { refreshData(); setInterval(() => refreshData(false), 30000); });
         
@@ -445,7 +443,11 @@
         }
 
         async function refreshData(force = false) {
-            if (isRefreshing) return; // 🛡️ Блокируем параллельные вызовы
+            // 🛡️ ПОСЛЕДНЯЯ ПОЛИРОВКА UX: Честный фидбек при ручном клике во время обновления
+            if (isRefreshing) {
+                if (force) showMessage('⏳ Сканирование уже выполняется...', 'error');
+                return;
+            }
             isRefreshing = true;
             
             try {
@@ -500,7 +502,7 @@
             } catch (error) {
                 document.getElementById('coinList').innerHTML = `<div class="error-message"><strong>Ошибка:</strong> ${error.message}<br><button onclick="refreshData(true)" class="btn-retry">Повторить</button></div>`;
             } finally {
-                isRefreshing = false; // 🛡️ Снимаем блокировку в любом случае
+                isRefreshing = false;
             }
         }
 
@@ -854,7 +856,6 @@
             const div = document.createElement('div');
             div.className = type === 'success' ? 'success-message' : 'error-message';
             
-            // ♿ ACCESSIBILITY: Добавляем ARIA-атрибуты для скринридеров
             div.setAttribute('role', 'alert');
             div.setAttribute('aria-live', 'assertive');
             
@@ -863,7 +864,6 @@
             setTimeout(() => div.remove(), 3000);
         }
 
-        // ♿ ACCESSIBILITY: Уважаем prefers-reduced-motion для SVG-логотипа
         if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
             document.querySelectorAll('.logo-svg animate, .logo-svg animateTransform')
                 .forEach(el => el.remove());
